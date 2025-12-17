@@ -32,12 +32,7 @@ function CategoryCard({ category, variant = 'default' }) {
     return (
       <Link
         href={`/catalogo/${slug}`}
-        className="
-          flex items-center gap-3 p-3
-          bg-white rounded-lg border border-gray-200
-          hover:border-brand-blue hover:shadow-md
-          transition-all duration-300
-        "
+        className="flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-brand-blue hover:shadow-md transition-all duration-300"
       >
         <div className="w-10 h-10 rounded-lg bg-brand-blue-light flex items-center justify-center">
           <Icon className="w-5 h-5 text-brand-blue" />
@@ -55,12 +50,7 @@ function CategoryCard({ category, variant = 'default' }) {
   return (
     <Link
       href={`/catalogo/${slug}`}
-      className="
-        group relative block overflow-hidden
-        bg-white rounded-xl border border-gray-200
-        hover:border-brand-blue hover:shadow-lg
-        transition-all duration-300
-      "
+      className="group relative block overflow-hidden bg-white rounded-xl border border-gray-200 hover:border-brand-blue hover:shadow-lg transition-all duration-300"
     >
       {/* Image or gradient background */}
       <div className="aspect-[4/3] relative overflow-hidden bg-gradient-to-br from-brand-blue-light to-brand-green-light">

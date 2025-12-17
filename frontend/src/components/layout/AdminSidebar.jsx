@@ -33,16 +33,10 @@ export default function AdminSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
+  const sidebarWidth = collapsed ? 'w-20' : 'w-64';
+
   return (
-    <aside
-      className={`
-        h-screen sticky top-0
-        bg-white border-r border-gray-200
-        flex flex-col
-        transition-all duration-300
-        ${collapsed ? 'w-20' : 'w-64'}
-      `}
-    >
+    <aside className={`h-screen sticky top-0 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${sidebarWidth}`}>
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <Link href="/admin" className="flex items-center gap-3">
@@ -66,18 +60,15 @@ export default function AdminSidebar() {
               (item.href !== '/admin' && pathname.startsWith(item.href));
             const Icon = item.icon;
             
+            const linkClasses = isActive
+              ? 'flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors bg-brand-blue text-white'
+              : 'flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors text-gray-700 hover:bg-gray-100';
+
             return (
               <li key={item.name}>
                 <Link
                   href={item.href}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg
-                    font-medium transition-colors
-                    ${isActive
-                      ? 'bg-brand-blue text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
-                    }
-                  `}
+                  className={linkClasses}
                   title={collapsed ? item.name : undefined}
                 >
                   <Icon className="w-5 h-5 shrink-0" />
@@ -93,12 +84,7 @@ export default function AdminSidebar() {
       <div className="p-4 border-t border-gray-200">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="
-            w-full flex items-center justify-center gap-2 
-            px-3 py-2 rounded-lg
-            text-gray-600 hover:bg-gray-100
-            transition-colors
-          "
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
         >
           {collapsed ? (
             <IconChevronDoubleRight className="w-5 h-5" />

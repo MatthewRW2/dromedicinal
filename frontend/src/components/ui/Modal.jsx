@@ -74,13 +74,7 @@ export default function Modal({
       <div
         ref={modalRef}
         tabIndex={-1}
-        className={`
-          relative w-full ${sizes[size]}
-          bg-white rounded-xl shadow-elevated
-          animate-slide-up
-          max-h-[90vh] overflow-hidden
-          flex flex-col
-        `}
+        className={`relative w-full ${sizes[size]} bg-white rounded-xl shadow-elevated animate-slide-up max-h-[90vh] overflow-hidden flex flex-col`}
       >
         {/* Header */}
         {(title || showCloseButton) && (
@@ -93,13 +87,7 @@ export default function Modal({
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="
-                  p-2 -mr-2 rounded-lg
-                  text-gray-400 hover:text-gray-600
-                  hover:bg-gray-100
-                  transition-colors
-                  focus-ring
-                "
+                className="p-2 -mr-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors focus-ring"
                 aria-label="Cerrar modal"
               >
                 <svg
@@ -133,17 +121,8 @@ export default function Modal({
  */
 export function ModalFooter({ children, className = '' }) {
   return (
-    <div
-      className={`
-        flex items-center justify-end gap-3
-        px-6 py-4
-        border-t border-gray-200
-        bg-gray-50
-        ${className}
-      `}
-    >
+    <div className={`flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 ${className}`}>
       {children}
     </div>
   );
 }
-

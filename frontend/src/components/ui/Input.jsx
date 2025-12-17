@@ -21,13 +21,14 @@ const Input = forwardRef(function Input(
 ) {
   const inputId = props.id || props.name;
 
+  const inputBaseClasses = 'w-full px-4 py-2.5 rounded-lg border border-gray-300 text-gray-900 placeholder:text-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60';
+  const inputWithIcon = icon ? 'pl-10' : '';
+  const inputWithError = error ? 'border-brand-red focus:ring-brand-red focus:border-brand-red' : '';
+
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
       {label && (
-        <label
-          htmlFor={inputId}
-          className="text-sm font-medium text-gray-700"
-        >
+        <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
           {label}
           {required && <span className="text-brand-red ml-1">*</span>}
         </label>
@@ -46,16 +47,7 @@ const Input = forwardRef(function Input(
           type={type}
           disabled={disabled}
           required={required}
-          className={`
-            w-full px-4 py-2.5 rounded-lg
-            border border-gray-300
-            text-gray-900 placeholder:text-gray-400
-            transition-all duration-200
-            focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue
-            disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60
-            ${icon ? 'pl-10' : ''}
-            ${error ? 'border-brand-red focus:ring-brand-red focus:border-brand-red' : ''}
-          `}
+          className={`${inputBaseClasses} ${inputWithIcon} ${inputWithError}`}
           {...props}
         />
       </div>
@@ -91,13 +83,13 @@ export const Textarea = forwardRef(function Textarea(
 ) {
   const inputId = props.id || props.name;
 
+  const textareaBaseClasses = 'w-full px-4 py-2.5 rounded-lg border border-gray-300 text-gray-900 placeholder:text-gray-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 resize-y min-h-[100px]';
+  const textareaWithError = error ? 'border-brand-red focus:ring-brand-red focus:border-brand-red' : '';
+
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
       {label && (
-        <label
-          htmlFor={inputId}
-          className="text-sm font-medium text-gray-700"
-        >
+        <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
           {label}
           {required && <span className="text-brand-red ml-1">*</span>}
         </label>
@@ -109,16 +101,7 @@ export const Textarea = forwardRef(function Textarea(
         disabled={disabled}
         required={required}
         rows={rows}
-        className={`
-          w-full px-4 py-2.5 rounded-lg
-          border border-gray-300
-          text-gray-900 placeholder:text-gray-400
-          transition-all duration-200
-          focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue
-          disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60
-          resize-y min-h-[100px]
-          ${error ? 'border-brand-red focus:ring-brand-red focus:border-brand-red' : ''}
-        `}
+        className={`${textareaBaseClasses} ${textareaWithError}`}
         {...props}
       />
       
@@ -152,13 +135,13 @@ export const Select = forwardRef(function Select(
 ) {
   const inputId = props.id || props.name;
 
+  const selectBaseClasses = 'w-full px-4 py-2.5 rounded-lg border border-gray-300 text-gray-900 bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer';
+  const selectWithError = error ? 'border-brand-red focus:ring-brand-red focus:border-brand-red' : '';
+
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
       {label && (
-        <label
-          htmlFor={inputId}
-          className="text-sm font-medium text-gray-700"
-        >
+        <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
           {label}
           {required && <span className="text-brand-red ml-1">*</span>}
         </label>
@@ -169,17 +152,7 @@ export const Select = forwardRef(function Select(
         id={inputId}
         disabled={disabled}
         required={required}
-        className={`
-          w-full px-4 py-2.5 rounded-lg
-          border border-gray-300
-          text-gray-900
-          bg-white
-          transition-all duration-200
-          focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue
-          disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60
-          cursor-pointer
-          ${error ? 'border-brand-red focus:ring-brand-red focus:border-brand-red' : ''}
-        `}
+        className={`${selectBaseClasses} ${selectWithError}`}
         {...props}
       >
         <option value="" disabled>{placeholder}</option>
@@ -200,4 +173,3 @@ export const Select = forwardRef(function Select(
     </div>
   );
 });
-

@@ -36,25 +36,21 @@ export default function Button({
   type = 'button',
   ...props
 }) {
-  const baseStyles = `
-    inline-flex items-center justify-center gap-2
-    font-medium rounded-lg
-    transition-all duration-200 ease-out
-    focus-ring
-    disabled:opacity-50 disabled:cursor-not-allowed
-  `;
+  const baseStyles = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 ease-out focus-ring disabled:opacity-50 disabled:cursor-not-allowed';
+
+  const classes = [
+    baseStyles,
+    variants[variant],
+    sizes[size],
+    fullWidth ? 'w-full' : '',
+    className,
+  ].filter(Boolean).join(' ');
 
   return (
     <button
       type={type}
       disabled={disabled || loading}
-      className={`
-        ${baseStyles}
-        ${variants[variant]}
-        ${sizes[size]}
-        ${fullWidth ? 'w-full' : ''}
-        ${className}
-      `.trim()}
+      className={classes}
       {...props}
     >
       {loading ? (
@@ -102,27 +98,25 @@ export function ButtonLink({
   icon,
   iconPosition = 'left',
   external = false,
+  fullWidth = false,
   ...props
 }) {
-  const baseStyles = `
-    inline-flex items-center justify-center gap-2
-    font-medium rounded-lg
-    transition-all duration-200 ease-out
-    focus-ring
-    no-underline
-  `;
+  const baseStyles = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 ease-out focus-ring no-underline';
+
+  const classes = [
+    baseStyles,
+    variants[variant],
+    sizes[size],
+    fullWidth ? 'w-full' : '',
+    className,
+  ].filter(Boolean).join(' ');
 
   const externalProps = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 
   return (
     <a
       href={href}
-      className={`
-        ${baseStyles}
-        ${variants[variant]}
-        ${sizes[size]}
-        ${className}
-      `.trim()}
+      className={classes}
       {...externalProps}
       {...props}
     >
@@ -132,4 +126,3 @@ export function ButtonLink({
     </a>
   );
 }
-

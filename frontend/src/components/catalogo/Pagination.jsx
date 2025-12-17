@@ -15,12 +15,11 @@ export default function Pagination({
 
   const getPageNumbers = () => {
     const pages = [];
-    const showPages = 5; // Número de páginas a mostrar
+    const showPages = 5;
     
     let start = Math.max(1, currentPage - Math.floor(showPages / 2));
     let end = Math.min(totalPages, start + showPages - 1);
     
-    // Ajustar si estamos cerca del final
     if (end - start + 1 < showPages) {
       start = Math.max(1, end - showPages + 1);
     }
@@ -34,6 +33,9 @@ export default function Pagination({
 
   const pageNumbers = getPageNumbers();
 
+  const navButtonClasses = 'p-2 rounded-lg text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors';
+  const pageButtonBaseClasses = 'w-10 h-10 rounded-lg font-medium transition-colors';
+
   return (
     <nav
       className={`flex items-center justify-center gap-1 ${className}`}
@@ -43,12 +45,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="
-          p-2 rounded-lg
-          text-gray-600 hover:bg-gray-100
-          disabled:opacity-40 disabled:cursor-not-allowed
-          transition-colors
-        "
+        className={navButtonClasses}
         aria-label="Página anterior"
       >
         <IconChevronLeft className="w-5 h-5" />
@@ -59,11 +56,7 @@ export default function Pagination({
         <>
           <button
             onClick={() => onPageChange(1)}
-            className="
-              w-10 h-10 rounded-lg
-              text-gray-600 hover:bg-gray-100
-              font-medium transition-colors
-            "
+            className={`${pageButtonBaseClasses} text-gray-600 hover:bg-gray-100`}
           >
             1
           </button>
@@ -74,22 +67,23 @@ export default function Pagination({
       )}
 
       {/* Page numbers */}
-      {pageNumbers.map((page) => (
-        <button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={`
-            w-10 h-10 rounded-lg font-medium transition-colors
-            ${currentPage === page
-              ? 'bg-brand-blue text-white'
-              : 'text-gray-600 hover:bg-gray-100'
-            }
-          `}
-          aria-current={currentPage === page ? 'page' : undefined}
-        >
-          {page}
-        </button>
-      ))}
+      {pageNumbers.map((page) => {
+        const isActive = currentPage === page;
+        const pageClasses = isActive
+          ? `${pageButtonBaseClasses} bg-brand-blue text-white`
+          : `${pageButtonBaseClasses} text-gray-600 hover:bg-gray-100`;
+
+        return (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={pageClasses}
+            aria-current={isActive ? 'page' : undefined}
+          >
+            {page}
+          </button>
+        );
+      })}
 
       {/* Last page + ellipsis */}
       {pageNumbers[pageNumbers.length - 1] < totalPages && (
@@ -99,11 +93,7 @@ export default function Pagination({
           )}
           <button
             onClick={() => onPageChange(totalPages)}
-            className="
-              w-10 h-10 rounded-lg
-              text-gray-600 hover:bg-gray-100
-              font-medium transition-colors
-            "
+            className={`${pageButtonBaseClasses} text-gray-600 hover:bg-gray-100`}
           >
             {totalPages}
           </button>
@@ -114,12 +104,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="
-          p-2 rounded-lg
-          text-gray-600 hover:bg-gray-100
-          disabled:opacity-40 disabled:cursor-not-allowed
-          transition-colors
-        "
+        className={navButtonClasses}
         aria-label="Página siguiente"
       >
         <IconChevronRight className="w-5 h-5" />

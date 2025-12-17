@@ -27,18 +27,15 @@ export default function Badge({
   icon,
   ...props
 }) {
+  const classes = [
+    'inline-flex items-center gap-1 font-medium rounded-full whitespace-nowrap',
+    variants[variant],
+    sizes[size],
+    className,
+  ].filter(Boolean).join(' ');
+
   return (
-    <span
-      className={`
-        inline-flex items-center gap-1
-        font-medium rounded-full
-        whitespace-nowrap
-        ${variants[variant]}
-        ${sizes[size]}
-        ${className}
-      `}
-      {...props}
-    >
+    <span className={classes} {...props}>
       {icon && <span className="shrink-0">{icon}</span>}
       {children}
     </span>
@@ -64,4 +61,3 @@ export function AvailabilityBadge({ status, size = 'md' }) {
     </Badge>
   );
 }
-

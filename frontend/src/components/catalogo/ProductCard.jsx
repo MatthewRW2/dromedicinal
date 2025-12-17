@@ -39,16 +39,13 @@ export default function ProductCard({
   );
   const whatsappUrl = `https://wa.me/573001234567?text=${whatsappMessage}`;
 
+  const cardClasses = [
+    'group bg-white rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-300',
+    className,
+  ].filter(Boolean).join(' ');
+
   return (
-    <article
-      className={`
-        group bg-white rounded-xl border border-gray-200
-        overflow-hidden
-        transition-all duration-300
-        hover:shadow-lg hover:border-gray-300
-        ${className}
-      `}
-    >
+    <article className={cardClasses}>
       {/* Image */}
       <Link href={productUrl} className="block relative aspect-square overflow-hidden bg-gray-100">
         {primary_image ? (
@@ -101,13 +98,7 @@ export default function ProductCard({
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="
-                flex items-center gap-1.5 px-3 py-1.5
-                bg-whatsapp text-white text-sm font-medium
-                rounded-full
-                hover:bg-whatsapp-dark
-                transition-colors
-              "
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-whatsapp text-white text-sm font-medium rounded-full hover:bg-whatsapp-dark transition-colors"
               aria-label={`Pedir ${name} por WhatsApp`}
             >
               <IconWhatsApp className="w-4 h-4" />

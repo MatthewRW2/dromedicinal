@@ -34,6 +34,8 @@ const footerLinks = {
 };
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-gray-900 text-gray-300">
       {/* Main footer */}
@@ -158,7 +160,7 @@ export default function Footer() {
       <div className="border-t border-gray-800">
         <div className="container-app py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-            <p>© {new Date().getFullYear()} Dromedicinal. Todos los derechos reservados.</p>
+            <p>© {currentYear} Dromedicinal. Todos los derechos reservados.</p>
             <div className="flex items-center gap-4">
               {footerLinks.legal.map((link) => (
                 <Link

@@ -16,18 +16,17 @@ export default function Card({
     lg: 'p-8',
   };
 
+  const hoverClass = hover ? 'transition-shadow duration-300 hover:shadow-md' : '';
+
+  const classes = [
+    'bg-white rounded-xl border border-gray-200 shadow-sm',
+    hoverClass,
+    paddings[padding],
+    className,
+  ].filter(Boolean).join(' ');
+
   return (
-    <div
-      className={`
-        bg-white rounded-xl
-        border border-gray-200
-        shadow-sm
-        ${hover ? 'transition-shadow duration-300 hover:shadow-md' : ''}
-        ${paddings[padding]}
-        ${className}
-      `}
-      {...props}
-    >
+    <div className={classes} {...props}>
       {children}
     </div>
   );
@@ -87,4 +86,3 @@ export function CardFooter({ children, className = '' }) {
     </div>
   );
 }
-
