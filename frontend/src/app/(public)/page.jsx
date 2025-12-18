@@ -102,7 +102,7 @@ export default async function HomePage() {
   }));
 
   // Construir URLs de WhatsApp y Rappi
-  const whatsappNumber = settings.whatsapp_number || '573001234567';
+  const whatsappNumber = settings.whatsapp_number || '573134243625';
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=Hola%20Dromedicinal%2C%20quiero%20hacer%20un%20pedido`;
   const rappiUrl = settings.rappi_url || '#';
 
@@ -339,7 +339,7 @@ export default async function HomePage() {
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Ubicación</h3>
               <p className="text-gray-600 text-sm">
-                {settings.address || 'Calle 123 #45-67, Bogotá'}
+                {settings.address || 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca'}
               </p>
             </div>
 

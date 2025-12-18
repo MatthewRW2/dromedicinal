@@ -59,7 +59,7 @@ export default async function ServiciosPage() {
     // Continuar con array vacío
   }
 
-  const whatsappNumber = (settings.whatsapp_number || '573001234567').replace(/[^0-9]/g, '');
+  const whatsappNumber = (settings.whatsapp_number || '573134243625').replace(/[^0-9]/g, '');
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal%2C%20quiero%20informaci%C3%B3n%20sobre%20un%20servicio`;
 
   return (

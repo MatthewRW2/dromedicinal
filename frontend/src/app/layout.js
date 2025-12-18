@@ -2,6 +2,7 @@ import { Poppins } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/components/ui/Toast';
 import { generateMetadata as generateSEOMetadata, getLocalBusinessSchema } from '@/lib/seo';
+import { getSettings } from '@/lib/settings';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -16,8 +17,10 @@ export const metadata = generateSEOMetadata({
   description: 'Tu droguería de confianza en Bogotá. Medicamentos, productos de cuidado personal y servicios de salud con atención personalizada. Pedidos por WhatsApp y Rappi.',
 });
 
-export default function RootLayout({ children }) {
-  const localBusinessSchema = getLocalBusinessSchema();
+export default async function RootLayout({ children }) {
+  // Obtener settings para Schema.org
+  const settings = await getSettings();
+  const localBusinessSchema = getLocalBusinessSchema(settings);
 
   return (
     <html lang="es" className={poppins.variable}>

@@ -30,7 +30,7 @@ export default async function CatalogoPage() {
   }
 
   // Construir URL de WhatsApp
-  const whatsappNumber = settings.whatsapp_number || '573001234567';
+  const whatsappNumber = settings.whatsapp_number || '573134243625';
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=Hola%20Dromedicinal%2C%20estoy%20buscando%20un%20producto`;
 
 

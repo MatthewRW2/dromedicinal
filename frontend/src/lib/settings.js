@@ -36,11 +36,11 @@ export async function getSettings() {
  */
 function getDefaultSettings() {
   return {
-    phone: '(601) 123 4567',
-    whatsapp_number: '573001234567',
+    phone: '313 4243625',
+    whatsapp_number: '573134243625',
     contact_email: 'contacto@dromedicinal.com',
-    address: 'Calle 123 #45-67, Bogotá',
-    business_hours: 'Lun-Sáb: 7am-9pm | Dom: 8am-2pm',
+    address: 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca',
+    business_hours: 'Lunes a Sábado: 7:30 a.m. – 9:30 p.m. | Domingos y Festivos: 8:30 a.m. – 8:30 p.m.',
     rappi_url: '#',
     google_maps_url: null,
     facebook_url: null,

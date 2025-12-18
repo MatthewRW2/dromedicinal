@@ -10,6 +10,7 @@ export default function ProductCard({
   product,
   showWhatsApp = true,
   className = '',
+  whatsappNumber = null, // Número de WhatsApp desde settings (opcional)
 }) {
   const {
     id,
@@ -37,7 +38,10 @@ export default function ProductCard({
   const whatsappMessage = encodeURIComponent(
     `Hola Dromedicinal, quiero pedir: ${name}${presentation ? ` (${presentation})` : ''}. ¿Está disponible?`
   );
-  const whatsappUrl = `https://wa.me/573001234567?text=${whatsappMessage}`;
+  // Usar número proporcionado o valor por defecto
+  const defaultWhatsApp = '573134243625'; // Valor por defecto actualizado
+  const finalWhatsApp = (whatsappNumber || defaultWhatsApp).replace(/[^0-9]/g, '');
+  const whatsappUrl = `https://wa.me/${finalWhatsApp}?text=${whatsappMessage}`;
 
   const cardClasses = [
     'group bg-white rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-300',

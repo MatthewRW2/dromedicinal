@@ -136,7 +136,7 @@ export default async function PromocionesPage() {
     return startsAt > today;
   });
 
-  const whatsappNumber = (settings.whatsapp_number || '573001234567').replace(/[^0-9]/g, '');
+  const whatsappNumber = (settings.whatsapp_number || '573134243625').replace(/[^0-9]/g, '');
 
   return (
     <div className="py-8 lg:py-12">

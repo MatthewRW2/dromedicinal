@@ -97,8 +97,22 @@ export function generateCategoryMetadata(category) {
 
 /**
  * Schema.org LocalBusiness para SEO local
+ * @param {object|null} settings - Settings desde la API (opcional)
  */
-export function getLocalBusinessSchema() {
+export function getLocalBusinessSchema(settings = null) {
+  const phone = settings?.phone || settings?.whatsapp_number || '313 4243625';
+  const email = settings?.contact_email || 'contacto@dromedicinal.com';
+  const address = settings?.address || 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca';
+  
+  // Extraer partes de la dirección si es posible
+  const addressParts = address.split(',');
+  const streetAddress = addressParts[0]?.trim() || address;
+  const locality = addressParts[1]?.trim() || 'Bogotá';
+  const region = addressParts[2]?.trim() || 'Cundinamarca';
+  
+  // Formatear teléfono para Schema.org (agregar código de país si no lo tiene)
+  const formattedPhone = phone.startsWith('+') ? phone : `+57${phone.replace(/[^0-9]/g, '')}`;
+  
   return {
     '@context': 'https://schema.org',
     '@type': 'Pharmacy',
@@ -106,14 +120,13 @@ export function getLocalBusinessSchema() {
     alternateName: 'Droguería Dromedicinal',
     description: DEFAULT_DESCRIPTION,
     url: SITE_URL,
-    telephone: '+571234567',
-    email: 'contacto@dromedicinal.com',
+    telephone: formattedPhone,
+    email: email,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Calle 123 #45-67',
-      addressLocality: 'Bogotá',
-      addressRegion: 'Bogotá D.C.',
-      postalCode: '110111',
+      streetAddress: streetAddress,
+      addressLocality: locality,
+      addressRegion: region,
       addressCountry: 'CO',
     },
     geo: {

@@ -61,7 +61,7 @@ export default async function PromotionDetailPage({ params }) {
   const daysLeft = isActive ? Math.ceil((endsAt - today) / (1000 * 60 * 60 * 24)) : null;
   const products = promotion.products || [];
 
-  const whatsappNumber = (settings.whatsapp_number || '573001234567').replace(/[^0-9]/g, '');
+  const whatsappNumber = (settings.whatsapp_number || '573134243625').replace(/[^0-9]/g, '');
   const rappiUrl = settings.rappi_url || '#';
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal%2C%20quiero%20información%20sobre%20la%20promoción%20${encodeURIComponent(promotion.title)}`;
 
@@ -173,7 +173,7 @@ export default async function PromotionDetailPage({ params }) {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} whatsappNumber={whatsappNumber} />
               ))}
             </div>
           </section>

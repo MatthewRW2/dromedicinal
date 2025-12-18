@@ -62,7 +62,7 @@ export default async function ProductPage({ params }) {
       }).format(product.price)
     : null;
 
-  const whatsappLink = getProductOrderLink(product);
+  const whatsappLink = getProductOrderLink(product, settings.whatsapp_number);
 
   // Schema.org para SEO
   const productSchema = getProductSchema(product);

@@ -31,7 +31,7 @@ export default function FAQPage() {
   const [openId, setOpenId] = useState(null);
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [whatsappNumber, setWhatsappNumber] = useState('573001234567');
+  const [whatsappNumber, setWhatsappNumber] = useState('573134243625');
 
   useEffect(() => {
     const loadFAQs = async () => {

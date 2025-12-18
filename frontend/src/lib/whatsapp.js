@@ -3,34 +3,41 @@
  */
 
 // Número de WhatsApp de la droguería (sin '+')
-const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '573001234567';
+// Valor por defecto actualizado - se puede sobrescribir pasando el número como parámetro
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '573134243625';
 
 /**
  * Genera un enlace de WhatsApp con mensaje prellenado
+ * @param {string} message - Mensaje a enviar
+ * @param {string|null} whatsappNumber - Número de WhatsApp (opcional, usa el por defecto si no se proporciona)
  */
-export function buildWhatsAppLink(message) {
+export function buildWhatsAppLink(message, whatsappNumber = null) {
   const encodedMessage = encodeURIComponent(message);
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+  const number = (whatsappNumber || WHATSAPP_NUMBER).replace(/[^0-9]/g, '');
+  return `https://wa.me/${number}?text=${encodedMessage}`;
 }
 
 /**
  * Mensaje para consulta general
+ * @param {string|null} whatsappNumber - Número de WhatsApp (opcional)
  */
-export function getGeneralContactLink() {
-  return buildWhatsAppLink('Hola Dromedicinal, tengo una consulta.');
+export function getGeneralContactLink(whatsappNumber = null) {
+  return buildWhatsAppLink('Hola Dromedicinal, tengo una consulta.', whatsappNumber);
 }
 
 /**
  * Mensaje para pedir un producto específico
+ * @param {object} product - Objeto del producto
+ * @param {string|null} whatsappNumber - Número de WhatsApp (opcional)
  */
-export function getProductOrderLink(product) {
+export function getProductOrderLink(product, whatsappNumber = null) {
   const { name, presentation, slug } = product;
   
   const message = presentation
     ? `Hola Dromedicinal, quiero pedir: ${name} (${presentation}). ¿Está disponible?`
     : `Hola Dromedicinal, quiero pedir: ${name}. ¿Está disponible?`;
 
-  return buildWhatsAppLink(message);
+  return buildWhatsAppLink(message, whatsappNumber);
 }
 
 /**

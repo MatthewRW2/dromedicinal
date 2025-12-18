@@ -1,7 +1,9 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ProductCard, FiltersBar, Pagination, PaginationInfo } from '@/components/catalogo';
+import { publicAPI } from '@/lib/api';
 
 /**
  * Componente cliente para manejar filtros y paginación en página de categoría
@@ -13,6 +15,24 @@ export default function CategoryProductsClient({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [whatsappNumber, setWhatsappNumber] = useState(null);
+
+  // Cargar settings para obtener WhatsApp
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await publicAPI.getSettings();
+        const settings = response.data || {};
+        if (settings.whatsapp_number) {
+          setWhatsappNumber(settings.whatsapp_number);
+        }
+      } catch (error) {
+        // Usar valor por defecto si falla
+        setWhatsappNumber('573134243625');
+      }
+    };
+    loadSettings();
+  }, []);
 
   const products = initialProducts || [];
   const meta = initialMeta || {
@@ -89,7 +109,7 @@ export default function CategoryProductsClient({
       {products.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} whatsappNumber={whatsappNumber} />
           ))}
         </div>
       ) : (

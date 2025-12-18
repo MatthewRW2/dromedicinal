@@ -38,8 +38,9 @@ export default function Header() {
     loadSettings();
   }, []);
 
-  const whatsappNumber = (settings.whatsapp_number || '573001234567').replace(/[^0-9]/g, '');
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal`;
+  const whatsappNumber = (settings.whatsapp_number || '573134243625').replace(/[^0-9]/g, '');
+  const whatsappUrlGeneral = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal`;
+  const whatsappUrlOrder = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal%2C%20quiero%20hacer%20un%20pedido`;
   const rappiUrl = settings.rappi_url || '#';
 
   return (
@@ -54,7 +55,7 @@ export default function Header() {
             </p>
             <div className="flex items-center gap-4 ml-auto">
               <a
-                href={whatsappUrl}
+                href={whatsappUrlGeneral}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
@@ -108,7 +109,7 @@ export default function Header() {
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
             <ButtonLink
-              href="https://wa.me/573001234567?text=Hola%20Dromedicinal%2C%20quiero%20hacer%20un%20pedido"
+              href={whatsappUrlOrder}
               variant="whatsapp"
               size="md"
               external
@@ -150,7 +151,7 @@ export default function Header() {
             ))}
             <div className="pt-4 border-t border-gray-200 mt-4">
               <ButtonLink
-                href="https://wa.me/573001234567?text=Hola%20Dromedicinal%2C%20quiero%20hacer%20un%20pedido"
+                href={whatsappUrlOrder}
                 variant="whatsapp"
                 size="lg"
                 fullWidth

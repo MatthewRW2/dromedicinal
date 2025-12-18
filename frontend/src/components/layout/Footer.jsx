@@ -54,10 +54,10 @@ export default async function Footer() {
     // Usar valores por defecto
   }
   
-  const address = settings.address || 'Calle 123 #45-67, Bogotá, Colombia';
-  const phone = settings.phone || '(601) 123 4567';
+  const address = settings.address || 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca';
+  const phone = settings.phone || '313 4243625';
   const businessHours = settings.business_hours || 'Lun-Sáb: 7am - 9pm | Dom: 8am - 2pm';
-  const whatsappNumber = (settings.whatsapp_number || '573001234567').replace(/[^0-9]/g, '');
+  const whatsappNumber = (settings.whatsapp_number || '573134243625').replace(/[^0-9]/g, '');
   const whatsappUrl = `https://wa.me/${whatsappNumber}`;
   const instagramUrl = settings.instagram_url || '#';
   const facebookUrl = settings.facebook_url || '#';
