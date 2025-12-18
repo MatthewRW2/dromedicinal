@@ -5,12 +5,12 @@ namespace App\Controllers;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Validator;
-use App\Core\Session;
 use App\Services\AuthService;
+use App\Helpers\JWT;
 use App\Middleware\RateLimitMiddleware;
 
 /**
- * Controller de autenticación
+ * Controller de autenticación con JWT
  */
 class AuthController
 {
@@ -56,7 +56,12 @@ class AuthController
             return;
         }
 
-        $response->json($result['user']);
+        // Respuesta con token JWT
+        $response->json([
+            'token' => $result['token'],
+            'expires_in' => $result['expires_in'],
+            'user' => $result['user']
+        ]);
     }
 
     /**
@@ -64,7 +69,9 @@ class AuthController
      */
     public function logout(Request $request, Response $response): void
     {
-        $this->authService->logout();
+        $token = JWT::extractFromHeader();
+        $this->authService->logout($token);
+        
         $response->json(['message' => 'Sesión cerrada correctamente']);
     }
 
@@ -73,14 +80,36 @@ class AuthController
      */
     public function me(Request $request, Response $response): void
     {
-        $user = $this->authService->getCurrentUser();
+        $token = JWT::extractFromHeader();
+        $user = $this->authService->getCurrentUser($token);
 
         if (!$user) {
-            $response->unauthorized('No autenticado');
+            $response->unauthorized('No autenticado o token inválido');
             return;
         }
 
         $response->json($user);
     }
-}
 
+    /**
+     * POST /auth/refresh
+     */
+    public function refresh(Request $request, Response $response): void
+    {
+        $token = JWT::extractFromHeader();
+        
+        if (!$token) {
+            $response->unauthorized('Token no proporcionado');
+            return;
+        }
+
+        $result = $this->authService->refreshToken($token);
+
+        if (!$result) {
+            $response->unauthorized('No se pudo refrescar el token');
+            return;
+        }
+
+        $response->json($result);
+    }
+}

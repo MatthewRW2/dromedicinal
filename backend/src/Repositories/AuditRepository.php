@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Core\Session;
+use App\Middleware\AuthMiddleware;
 
 /**
  * Repository para logs de auditoría
@@ -22,7 +22,7 @@ class AuditRepository extends BaseRepository
         ?array $after = null
     ): int {
         return $this->create([
-            'user_id' => Session::getUserId(),
+            'user_id' => AuthMiddleware::getUserId(),
             'entity' => $entity,
             'entity_id' => $entityId,
             'action' => $action,
@@ -62,10 +62,7 @@ class AuditRepository extends BaseRepository
      */
     public function logLogin(int $userId): int
     {
-        // Temporalmente establecer el user_id para el log
-        $currentUserId = Session::getUserId();
-        
-        $id = $this->create([
+        return $this->create([
             'user_id' => $userId,
             'entity' => 'users',
             'entity_id' => $userId,
@@ -75,8 +72,6 @@ class AuditRepository extends BaseRepository
             'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null
         ]);
-
-        return $id;
     }
 
     /**
@@ -84,7 +79,7 @@ class AuditRepository extends BaseRepository
      */
     public function logLogout(): int
     {
-        $userId = Session::getUserId();
+        $userId = AuthMiddleware::getUserId();
         
         return $this->create([
             'user_id' => $userId,
@@ -143,4 +138,3 @@ class AuditRepository extends BaseRepository
         return $this->db->fetchAll($sql, [$limit]);
     }
 }
-

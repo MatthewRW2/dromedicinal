@@ -213,13 +213,24 @@ Reiniciar Apache.
 
 ## Seguridad
 
+- **Autenticación JWT** (JSON Web Tokens)
 - Contraseñas hasheadas con bcrypt (cost 12)
-- Sesiones con cookies HttpOnly y SameSite
-- Protección CSRF por Origin/Referer
 - Rate limiting en login
 - Validación y sanitización de inputs
 - Queries preparadas (PDO)
 - CORS configurado
+
+### Autenticación JWT
+
+El backend usa tokens JWT para autenticación. El flujo es:
+
+1. **Login**: `POST /api/v1/auth/login` → Devuelve `token` + `user`
+2. **Usar token**: Enviar en header `Authorization: Bearer <token>`
+3. **Verificar**: `GET /api/v1/auth/me` → Devuelve usuario actual
+4. **Refrescar**: `POST /api/v1/auth/refresh` → Nuevo token
+5. **Logout**: `POST /api/v1/auth/logout`
+
+Los tokens expiran en 2 horas por defecto (configurable en `SESSION_LIFETIME`).
 
 ## Desarrollo
 
@@ -229,10 +240,21 @@ Reiniciar Apache.
 # Settings públicos
 curl http://localhost:8000/api/v1/public/settings
 
-# Login
+# Login (obtener token)
 curl -X POST http://localhost:8000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@dromedicinal.com","password":"tu_contraseña"}'
+
+# Respuesta:
+# {"data":{"token":"eyJ...","expires_in":7200,"user":{...}}}
+
+# Usar token en endpoints protegidos
+curl http://localhost:8000/api/v1/admin/categories \
+  -H "Authorization: Bearer eyJ..."
+
+# Verificar usuario actual
+curl http://localhost:8000/api/v1/auth/me \
+  -H "Authorization: Bearer eyJ..."
 ```
 
 ### Logs

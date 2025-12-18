@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Validator;
-use App\Core\Session;
+use App\Middleware\AuthMiddleware;
 use App\Services\UserService;
 
 /**
@@ -113,7 +113,7 @@ class UserController
     public function destroy(Request $request, Response $response): void
     {
         $id = (int) $request->param('id');
-        $currentUserId = Session::getUserId();
+        $currentUserId = AuthMiddleware::getUserId();
         
         $result = $this->userService->delete($id, $currentUserId);
 

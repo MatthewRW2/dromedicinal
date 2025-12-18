@@ -4,12 +4,13 @@ namespace App\Services;
 
 use App\Core\Session;
 use App\Helpers\Security;
+use App\Helpers\JWT;
 use App\Repositories\UserRepository;
 use App\Repositories\AuditRepository;
 use App\Middleware\RateLimitMiddleware;
 
 /**
- * Service de autenticación
+ * Service de autenticación con JWT
  */
 class AuthService
 {
@@ -23,7 +24,7 @@ class AuthService
     }
 
     /**
-     * Intentar login
+     * Intentar login y generar JWT
      */
     public function login(string $email, string $password, string $ip): array
     {
@@ -67,47 +68,98 @@ class AuthService
         // Actualizar último login
         $this->userRepo->updateLastLogin($user['id']);
         
-        // Crear sesión
-        Session::setUser($user);
+        // Generar JWT
+        $token = JWT::generate([
+            'user_id' => $user['id'],
+            'email' => $user['email'],
+            'role' => $user['role_name']
+        ]);
         
         // Log de auditoría
         $this->auditRepo->logLogin($user['id']);
 
         return [
             'success' => true,
+            'token' => $token,
+            'expires_in' => JWT::getExpiration(),
             'user' => $this->sanitizeUser($user)
         ];
     }
 
     /**
-     * Cerrar sesión
+     * Validar token y obtener usuario
      */
-    public function logout(): void
+    public function validateToken(string $token): ?array
     {
-        if (Session::isAuthenticated()) {
-            $this->auditRepo->logLogout();
-        }
-        Session::logout();
-    }
-
-    /**
-     * Obtener usuario actual
-     */
-    public function getCurrentUser(): ?array
-    {
-        if (!Session::isAuthenticated()) {
+        $payload = JWT::validate($token);
+        
+        if (!$payload || !isset($payload['user_id'])) {
             return null;
         }
 
-        $userId = Session::getUserId();
-        $user = $this->userRepo->findWithRole($userId);
-
-        if (!$user) {
-            Session::logout();
+        $user = $this->userRepo->findWithRole($payload['user_id']);
+        
+        if (!$user || !$user['is_active']) {
             return null;
         }
 
         return $this->sanitizeUser($user);
+    }
+
+    /**
+     * Refrescar token
+     */
+    public function refreshToken(string $token): ?array
+    {
+        $newToken = JWT::refresh($token);
+        
+        if (!$newToken) {
+            return null;
+        }
+
+        $payload = JWT::validate($newToken);
+        $user = $this->userRepo->findWithRole($payload['user_id']);
+
+        return [
+            'token' => $newToken,
+            'expires_in' => JWT::getExpiration(),
+            'user' => $this->sanitizeUser($user)
+        ];
+    }
+
+    /**
+     * Cerrar sesión (logout) - registrar en auditoría
+     */
+    public function logout(?string $token): void
+    {
+        if ($token) {
+            $payload = JWT::validate($token);
+            if ($payload && isset($payload['user_id'])) {
+                // Log de auditoría manual ya que no hay sesión
+                $this->auditRepo->create([
+                    'user_id' => $payload['user_id'],
+                    'entity' => 'users',
+                    'entity_id' => $payload['user_id'],
+                    'action' => 'LOGOUT',
+                    'before_data' => null,
+                    'after_data' => null,
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+                    'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Obtener usuario actual desde token
+     */
+    public function getCurrentUser(?string $token): ?array
+    {
+        if (!$token) {
+            return null;
+        }
+
+        return $this->validateToken($token);
     }
 
     /**
@@ -119,4 +171,3 @@ class AuthService
         return $user;
     }
 }
-

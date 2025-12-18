@@ -4,10 +4,9 @@ namespace App\Middleware;
 
 use App\Core\Request;
 use App\Core\Response;
-use App\Core\Session;
 
 /**
- * Middleware Role - Verifica roles/permisos del usuario
+ * Middleware Role - Verifica roles/permisos del usuario (usa AuthMiddleware)
  */
 class RoleMiddleware
 {
@@ -23,8 +22,8 @@ class RoleMiddleware
      */
     public function handle(Request $request, Response $response): bool
     {
-        // Obtener rol del usuario actual
-        $userRole = Session::get('user_role');
+        // Obtener rol del usuario actual (establecido por AuthMiddleware)
+        $userRole = AuthMiddleware::getUserRole();
         
         if (!$userRole) {
             $response->unauthorized('Usuario no autenticado');
@@ -45,4 +44,3 @@ class RoleMiddleware
         return true;
     }
 }
-

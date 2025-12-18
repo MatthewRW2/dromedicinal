@@ -4,33 +4,82 @@ namespace App\Middleware;
 
 use App\Core\Request;
 use App\Core\Response;
-use App\Core\Session;
+use App\Helpers\JWT;
+use App\Repositories\UserRepository;
 
 /**
- * Middleware Auth - Verifica autenticación del usuario
+ * Middleware Auth - Verifica autenticación JWT
  */
 class AuthMiddleware
 {
+    private static ?array $currentUser = null;
+
     /**
-     * Verificar que el usuario esté autenticado
+     * Verificar que el usuario esté autenticado via JWT
      */
     public function handle(Request $request, Response $response): bool
     {
-        // Verificar si hay sesión activa
-        if (!Session::isAuthenticated()) {
-            $response->unauthorized('Sesión no válida o expirada');
+        // Extraer token del header Authorization
+        $token = JWT::extractFromHeader();
+
+        if (!$token) {
+            $response->unauthorized('Token no proporcionado');
             return false;
         }
 
-        // Verificar tiempo de inactividad (opcional, ya manejado por session lifetime)
-        $authTime = Session::get('auth_time');
-        if ($authTime && (time() - $authTime) > SESSION_LIFETIME) {
-            Session::logout();
-            $response->unauthorized('Sesión expirada');
+        // Validar token
+        $payload = JWT::validate($token);
+
+        if (!$payload) {
+            $response->unauthorized('Token inválido o expirado');
             return false;
         }
+
+        // Verificar que el usuario existe y está activo
+        $userRepo = new UserRepository();
+        $user = $userRepo->findWithRole($payload['user_id']);
+
+        if (!$user || !$user['is_active']) {
+            $response->unauthorized('Usuario no válido');
+            return false;
+        }
+
+        // Guardar usuario actual para uso en otros lugares
+        self::$currentUser = $user;
 
         return true;
     }
-}
 
+    /**
+     * Obtener usuario autenticado actual
+     */
+    public static function getCurrentUser(): ?array
+    {
+        return self::$currentUser;
+    }
+
+    /**
+     * Obtener ID del usuario autenticado
+     */
+    public static function getUserId(): ?int
+    {
+        return self::$currentUser['id'] ?? null;
+    }
+
+    /**
+     * Obtener rol del usuario autenticado
+     */
+    public static function getUserRole(): ?string
+    {
+        return self::$currentUser['role_name'] ?? null;
+    }
+
+    /**
+     * Verificar si el usuario tiene un rol específico
+     */
+    public static function hasRole(string ...$roles): bool
+    {
+        $userRole = self::getUserRole();
+        return $userRole && in_array($userRole, $roles);
+    }
+}

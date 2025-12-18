@@ -1,10 +1,11 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authAPI } from './api';
+import { useRouter, usePathname } from 'next/navigation';
+import { authAPI, getToken, removeToken, hasToken } from './api';
 
 /**
- * Contexto de autenticación para el panel admin
+ * Contexto de autenticación para el panel admin con JWT
  */
 const AuthContext = createContext(null);
 
@@ -15,17 +16,43 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  // Verificar sesión al cargar
+  // Verificar autenticación al cargar
   useEffect(() => {
     checkAuth();
   }, []);
 
+  // Redirigir si no está autenticado (excepto en login)
+  useEffect(() => {
+    if (!loading) {
+      const isLoginPage = pathname === '/admin/login';
+      
+      if (!user && !isLoginPage) {
+        // No autenticado y no está en login -> redirigir a login
+        router.push('/admin/login');
+      } else if (user && isLoginPage) {
+        // Autenticado y está en login -> redirigir a dashboard
+        router.push('/admin');
+      }
+    }
+  }, [user, loading, pathname, router]);
+
   const checkAuth = async () => {
+    // Si no hay token, no hay sesión
+    if (!hasToken()) {
+      setUser(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await authAPI.me();
       setUser(response.data);
     } catch {
+      // Token inválido o expirado
+      removeToken();
       setUser(null);
     } finally {
       setLoading(false);
@@ -38,7 +65,8 @@ export function AuthProvider({ children }) {
 
     try {
       const response = await authAPI.login(email, password);
-      setUser(response.data);
+      // El token ya se guarda en api.js
+      setUser(response.data.user);
       return { success: true };
     } catch (err) {
       setError(err.message);
@@ -55,8 +83,9 @@ export function AuthProvider({ children }) {
       // Ignorar errores de logout
     } finally {
       setUser(null);
+      router.push('/admin/login');
     }
-  }, []);
+  }, [router]);
 
   const value = {
     user,
@@ -86,9 +115,9 @@ export function useAuth() {
  * Verificar si el usuario tiene un rol específico
  */
 export function hasRole(user, roles) {
-  if (!user || !user.role) return false;
+  if (!user || !user.role_name) return false;
   const allowedRoles = Array.isArray(roles) ? roles : [roles];
-  return allowedRoles.includes(user.role);
+  return allowedRoles.includes(user.role_name);
 }
 
 /**
@@ -98,7 +127,7 @@ export function canAccess(user, permission) {
   if (!user) return false;
 
   // Admin tiene acceso a todo
-  if (user.role === 'admin') return true;
+  if (user.role_name === 'admin') return true;
 
   const rolePermissions = {
     catalog_manager: [
@@ -127,7 +156,6 @@ export function canAccess(user, permission) {
     ],
   };
 
-  const permissions = rolePermissions[user.role] || [];
+  const permissions = rolePermissions[user.role_name] || [];
   return permissions.includes(permission);
 }
-
