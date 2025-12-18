@@ -1,0 +1,21 @@
+# Variables de entorno
+.env
+
+# Logs
+storage/logs/*.log
+
+# Uploads (excepto .gitkeep)
+storage/uploads/*
+!storage/uploads/.gitkeep
+!storage/uploads/products/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
