@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ButtonLink } from '@/components/ui/Button';
 import { publicAPI } from '@/lib/api';
 import {
@@ -82,8 +83,14 @@ export default function Header() {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0">
-            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full gradient-brand flex items-center justify-center">
-              <span className="text-white font-bold text-lg lg:text-xl">D</span>
+            <div className="relative w-10 h-10 lg:w-12 lg:h-12 shrink-0">
+              <Image
+                src="/logo.jpg"
+                alt="Dromedicinal"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
             <div className="hidden sm:block">
               <h1 className="text-lg lg:text-xl font-bold text-brand-blue leading-tight">
