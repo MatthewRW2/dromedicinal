@@ -87,6 +87,14 @@ async function fetchAPI(endpoint, options = {}) {
 
     return data;
   } catch (error) {
+    // Si es un error de red (fetch falló), lanzar error más descriptivo
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new APIError(
+        'Error de conexión: No se pudo conectar con el servidor. Verifica que el backend esté corriendo.',
+        0,
+        'NETWORK_ERROR'
+      );
+    }
     if (error instanceof APIError) {
       throw error;
     }

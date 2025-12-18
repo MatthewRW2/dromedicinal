@@ -9,7 +9,7 @@ import Spinner from '@/components/ui/Spinner';
  * Contenido del admin con protección de ruta
  */
 function AdminContent({ children }) {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading, isAuthenticated, error } = useAuth();
   const pathname = usePathname();
   const isLoginPage = pathname === '/admin/login';
 

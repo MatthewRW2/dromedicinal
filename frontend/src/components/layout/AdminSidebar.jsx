@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/lib/auth';
+import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
 import {
   IconHome,
   IconProducts,
@@ -15,6 +18,7 @@ import {
   IconReports,
   IconChevronDoubleLeft,
   IconChevronDoubleRight,
+  IconLogout,
 } from '@/components/icons';
 
 const navigation = [
@@ -31,9 +35,22 @@ const navigation = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const sidebarWidth = collapsed ? 'w-20' : 'w-64';
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } catch (err) {
+      console.error('Error al cerrar sesión:', err);
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   return (
     <aside className={`h-screen sticky top-0 bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${sidebarWidth}`}>
@@ -80,8 +97,20 @@ export default function AdminSidebar() {
         </ul>
       </nav>
 
-      {/* Collapse button */}
-      <div className="p-4 border-t border-gray-200">
+      {/* User info and actions */}
+      <div className="p-4 border-t border-gray-200 space-y-2">
+        {/* User info */}
+        {!collapsed && user && (
+          <div className="px-3 py-2 mb-2">
+            <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+            <Badge variant="info" className="mt-1 text-xs">
+              {user.role_name || user.role}
+            </Badge>
+          </div>
+        )}
+
+        {/* Collapse button */}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
@@ -95,6 +124,19 @@ export default function AdminSidebar() {
             </>
           )}
         </button>
+
+        {/* Logout button */}
+        <Button
+          onClick={handleLogout}
+          variant="ghost"
+          size="sm"
+          fullWidth
+          loading={loggingOut}
+          icon={<IconLogout className="w-4 h-4" />}
+          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+        >
+          {!collapsed && 'Cerrar Sesión'}
+        </Button>
       </div>
     </aside>
   );

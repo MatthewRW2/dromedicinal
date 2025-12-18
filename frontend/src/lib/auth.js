@@ -48,10 +48,23 @@ export function AuthProvider({ children }) {
     }
 
     try {
-      const response = await authAPI.me();
-      setUser(response.data);
-    } catch {
-      // Token inválido o expirado
+      // Agregar timeout para evitar que se quede cargando indefinidamente
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 10000)
+      );
+      
+      const response = await Promise.race([
+        authAPI.me(),
+        timeoutPromise
+      ]);
+      
+      if (response && response.data) {
+        setUser(response.data);
+      } else {
+        throw new Error('Respuesta inválida del servidor');
+      }
+    } catch (err) {
+      // Token inválido, expirado o error de conexión
       removeToken();
       setUser(null);
     } finally {
