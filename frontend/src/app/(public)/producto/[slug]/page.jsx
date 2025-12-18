@@ -5,42 +5,54 @@ import { AvailabilityBadge } from '@/components/ui/Badge';
 import { ButtonLink } from '@/components/ui/Button';
 import { getProductOrderLink } from '@/lib/whatsapp';
 import { IconWhatsApp, IconRappi, IconInfo } from '@/components/icons';
-
-// Mock data - En producción vendría de la API
-const productsData = {
-  'acetaminofen-500mg-x10': {
-    id: 1,
-    slug: 'acetaminofen-500mg-x10',
-    name: 'Acetaminofén 500mg',
-    presentation: 'Caja x 10 tabletas',
-    description: 'Analgésico y antipirético de uso común. Indicado para el alivio del dolor leve a moderado y la reducción de la fiebre.',
-    price: 5500,
-    currency: 'COP',
-    availability_status: 'IN_STOCK',
-    brand: 'Genérico',
-    category: { name: 'Medicamentos', slug: 'medicamentos' },
-    images: [],
-  },
-};
+import { publicAPI } from '@/lib/api';
+import { getSettings } from '@/lib/settings';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const product = productsData[slug];
   
-  if (!product) {
+  try {
+    const response = await publicAPI.getProduct(slug);
+    const product = response.data;
+    
+    if (!product) {
+      return { title: 'Producto no encontrado' };
+    }
+    
+    return generateProductMetadata(product);
+  } catch (error) {
     return { title: 'Producto no encontrado' };
   }
-  
-  return generateProductMetadata(product);
 }
 
 export default async function ProductPage({ params }) {
   const { slug } = await params;
-  const product = productsData[slug];
   
+  // Obtener producto de la API
+  let product = null;
+  let settings = {};
+  
+  try {
+    const [productRes, settingsData] = await Promise.all([
+      publicAPI.getProduct(slug),
+      getSettings(),
+    ]);
+    
+    product = productRes.data;
+    settings = settingsData || {};
+  } catch (error) {
+    notFound();
+  }
+
   if (!product) {
     notFound();
   }
+
+  // Mapear imágenes de la API
+  const images = product.images || [];
+  
+  // Construir URL de Rappi
+  const rappiUrl = settings.rappi_url || '#';
 
   const formattedPrice = product.price
     ? new Intl.NumberFormat('es-CO', {
@@ -100,7 +112,7 @@ export default async function ProductPage({ params }) {
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Gallery */}
             <div>
-              <ProductGallery images={product.images} productName={product.name} />
+              <ProductGallery images={images} productName={product.name} />
             </div>
 
             {/* Info */}
@@ -157,7 +169,7 @@ export default async function ProductPage({ params }) {
                   Pedir por WhatsApp
                 </ButtonLink>
                 <ButtonLink
-                  href="https://www.rappi.com.co"
+                  href={rappiUrl}
                   variant="rappi"
                   size="lg"
                   external

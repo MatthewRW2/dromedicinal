@@ -2,6 +2,8 @@ import { generateMetadata as generateSEOMetadata } from '@/lib/seo';
 import { CategoryGrid } from '@/components/catalogo';
 import { ButtonLink } from '@/components/ui/Button';
 import { IconWhatsApp } from '@/components/icons';
+import { publicAPI } from '@/lib/api';
+import { getSettings } from '@/lib/settings';
 
 export const metadata = generateSEOMetadata({
   title: 'Catálogo',
@@ -9,53 +11,29 @@ export const metadata = generateSEOMetadata({
   path: '/catalogo',
 });
 
-// Mock data - En producción vendría de la API
-const categories = [
-  {
-    id: 1,
-    name: 'Medicamentos',
-    slug: 'medicamentos',
-    description: 'Medicamentos de venta libre y bajo fórmula médica',
-    product_count: 150,
-  },
-  {
-    id: 2,
-    name: 'Cuidado Personal',
-    slug: 'cuidado-personal',
-    description: 'Productos para el cuidado de tu piel, cabello y más',
-    product_count: 80,
-  },
-  {
-    id: 3,
-    name: 'Bebés y Niños',
-    slug: 'bebes-ninos',
-    description: 'Todo para el cuidado de los más pequeños del hogar',
-    product_count: 45,
-  },
-  {
-    id: 4,
-    name: 'Dermocosméticos',
-    slug: 'dermocosmeticos',
-    description: 'Productos dermatológicos y cosméticos especializados',
-    product_count: 60,
-  },
-  {
-    id: 5,
-    name: 'Vitaminas y Suplementos',
-    slug: 'vitaminas',
-    description: 'Vitaminas, minerales y suplementos alimenticios',
-    product_count: 35,
-  },
-  {
-    id: 6,
-    name: 'Primeros Auxilios',
-    slug: 'primeros-auxilios',
-    description: 'Vendajes, antisépticos y productos de emergencia',
-    product_count: 25,
-  },
-];
+export default async function CatalogoPage() {
+  // Obtener categorías de la API
+  let categories = [];
+  let settings = {};
 
-export default function CatalogoPage() {
+  try {
+    const [categoriesRes, settingsData] = await Promise.all([
+      publicAPI.getCategories(),
+      getSettings(),
+    ]);
+
+    categories = categoriesRes.data || [];
+    settings = settingsData || {};
+  } catch (error) {
+    console.error('Error cargando catálogo:', error);
+    // Continuar con array vacío
+  }
+
+  // Construir URL de WhatsApp
+  const whatsappNumber = settings.whatsapp_number || '573001234567';
+  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=Hola%20Dromedicinal%2C%20estoy%20buscando%20un%20producto`;
+
+
   return (
     <div className="py-8 lg:py-12">
       <div className="container-app">
@@ -83,7 +61,7 @@ export default function CatalogoPage() {
             Escríbenos por WhatsApp y te ayudamos a encontrar lo que necesitas
           </p>
           <ButtonLink
-            href="https://wa.me/573001234567?text=Hola%20Dromedicinal%2C%20estoy%20buscando%20un%20producto"
+            href={whatsappUrl}
             variant="whatsapp"
             external
             icon={<IconWhatsApp className="w-5 h-5" />}

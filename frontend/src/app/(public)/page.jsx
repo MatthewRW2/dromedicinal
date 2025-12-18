@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { ButtonLink } from '@/components/ui/Button';
+import { publicAPI } from '@/lib/api';
+import { getSettings } from '@/lib/settings';
 import {
   IconWhatsApp,
   IconRappi,
@@ -17,27 +19,93 @@ import {
   IconDrop,
   IconTruck,
   IconStorefront,
+  IconBeaker,
+  IconClipboard,
 } from '@/components/icons';
 
-// Categorías destacadas
-const featuredCategories = [
-  { id: 1, name: 'Medicamentos', slug: 'medicamentos', icon: IconPill, count: 150 },
-  { id: 2, name: 'Cuidado Personal', slug: 'cuidado-personal', icon: IconSprayBottle, count: 80 },
-  { id: 3, name: 'Bebés y Niños', slug: 'bebes-ninos', icon: IconBaby, count: 45 },
-  { id: 4, name: 'Dermocosméticos', slug: 'dermocosmeticos', icon: IconFlower, count: 60 },
-  { id: 5, name: 'Vitaminas', slug: 'vitaminas', icon: IconOrange, count: 35 },
-  { id: 6, name: 'Primeros Auxilios', slug: 'primeros-auxilios', icon: IconFirstAid, count: 25 },
-];
+// Mapeo de iconos por nombre/slug de categoría
+const categoryIconMap = {
+  'medicamentos': IconPill,
+  'medicamento': IconPill,
+  'cuidado-personal': IconSprayBottle,
+  'cuidado personal': IconSprayBottle,
+  'bebes-ninos': IconBaby,
+  'bebés y niños': IconBaby,
+  'bebes y ninos': IconBaby,
+  'dermocosmeticos': IconFlower,
+  'dermocosméticos': IconFlower,
+  'vitaminas': IconOrange,
+  'vitamina': IconOrange,
+  'primeros-auxilios': IconFirstAid,
+  'primeros auxilios': IconFirstAid,
+};
 
-// Servicios destacados
-const services = [
-  { icon: IconSyringe, name: 'Inyectología', description: 'Aplicación profesional de medicamentos' },
-  { icon: IconHeartbeat, name: 'Toma de Tensión', description: 'Control de presión arterial' },
-  { icon: IconDrop, name: 'Glicemia', description: 'Medición de glucosa en sangre' },
-  { icon: IconTruck, name: 'Domicilios', description: 'Entrega rápida a tu hogar' },
-];
+// Mapeo de iconos por nombre de servicio
+const serviceIconMap = {
+  'inyectologia': IconSyringe,
+  'inyectología': IconSyringe,
+  'toma de tension': IconHeartbeat,
+  'toma de tensión': IconHeartbeat,
+  'glicemia': IconDrop,
+  'domicilios': IconTruck,
+  'asesoria': IconBeaker,
+  'asesoría': IconBeaker,
+  'pedidos especiales': IconClipboard,
+};
 
-export default function HomePage() {
+function getCategoryIcon(name, slug) {
+  const key = (slug || name || '').toLowerCase();
+  return categoryIconMap[key] || IconPill;
+}
+
+function getServiceIcon(name) {
+  const key = (name || '').toLowerCase();
+  return serviceIconMap[key] || IconBeaker;
+}
+
+export default async function HomePage() {
+  // Obtener datos de la API
+  let categories = [];
+  let services = [];
+  let settings = {};
+
+  try {
+    const [categoriesRes, servicesRes, settingsData] = await Promise.all([
+      publicAPI.getCategories(),
+      publicAPI.getServices(),
+      getSettings(),
+    ]);
+
+    categories = categoriesRes.data || [];
+    services = servicesRes.data || [];
+    settings = settingsData || {};
+  } catch (error) {
+    console.error('Error cargando datos de inicio:', error);
+    // Continuar con arrays vacíos, se mostrarán mensajes apropiados
+  }
+
+  // Tomar primeras 6 categorías como destacadas
+  const featuredCategories = categories.slice(0, 6).map(cat => ({
+    id: cat.id,
+    name: cat.name,
+    slug: cat.slug,
+    icon: getCategoryIcon(cat.name, cat.slug),
+    count: cat.product_count || 0,
+  }));
+
+  // Tomar primeros 4 servicios como destacados
+  const featuredServices = services.slice(0, 4).map(service => ({
+    id: service.id,
+    name: service.name,
+    description: service.description || '',
+    icon: getServiceIcon(service.name),
+  }));
+
+  // Construir URLs de WhatsApp y Rappi
+  const whatsappNumber = settings.whatsapp_number || '573001234567';
+  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=Hola%20Dromedicinal%2C%20quiero%20hacer%20un%20pedido`;
+  const rappiUrl = settings.rappi_url || '#';
+
   return (
     <>
       {/* Hero Section */}
@@ -65,7 +133,7 @@ export default function HomePage() {
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <ButtonLink
-                  href="https://wa.me/573001234567?text=Hola%20Dromedicinal%2C%20quiero%20hacer%20un%20pedido"
+                  href={whatsappUrl}
                   variant="whatsapp"
                   size="lg"
                   external
@@ -74,7 +142,7 @@ export default function HomePage() {
                   Pedir por WhatsApp
                 </ButtonLink>
                 <ButtonLink
-                  href="https://www.rappi.com.co"
+                  href={rappiUrl}
                   variant="rappi"
                   size="lg"
                   external
@@ -86,14 +154,18 @@ export default function HomePage() {
 
               {/* Quick info */}
               <div className="mt-10 flex flex-wrap gap-6 text-sm text-white/80">
-                <div className="flex items-center gap-2">
-                  <IconLocation className="w-4 h-4" />
-                  <span>Calle 123 #45-67, Bogotá</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <IconClock className="w-4 h-4" />
-                  <span>Lun-Sáb: 7am-9pm</span>
-                </div>
+                {settings.address && (
+                  <div className="flex items-center gap-2">
+                    <IconLocation className="w-4 h-4" />
+                    <span>{settings.address}</span>
+                  </div>
+                )}
+                {settings.business_hours && (
+                  <div className="flex items-center gap-2">
+                    <IconClock className="w-4 h-4" />
+                    <span>{settings.business_hours}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -176,26 +248,32 @@ export default function HomePage() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((service, index) => {
-              const Icon = service.icon;
-              return (
-                <div
-                  key={index}
-                  className="
-                    bg-white rounded-xl p-6
-                    border border-gray-200
-                    hover:shadow-lg
-                    transition-all duration-300
-                  "
-                >
-                  <div className="w-12 h-12 rounded-lg bg-brand-green-light flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6 text-brand-green" />
+            {featuredServices.length > 0 ? (
+              featuredServices.map((service) => {
+                const Icon = service.icon;
+                return (
+                  <div
+                    key={service.id}
+                    className="
+                      bg-white rounded-xl p-6
+                      border border-gray-200
+                      hover:shadow-lg
+                      transition-all duration-300
+                    "
+                  >
+                    <div className="w-12 h-12 rounded-lg bg-brand-green-light flex items-center justify-center mb-4">
+                      <Icon className="w-6 h-6 text-brand-green" />
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-2">{service.name}</h3>
+                    <p className="text-sm text-gray-600">{service.description}</p>
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-2">{service.name}</h3>
-                  <p className="text-sm text-gray-600">{service.description}</p>
-                </div>
-              );
-            })}
+                );
+              })
+            ) : (
+              <div className="col-span-full text-center text-gray-500 py-8">
+                No hay servicios disponibles en este momento.
+              </div>
+            )}
           </div>
 
           <div className="text-center mt-10">
@@ -218,7 +296,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <ButtonLink
-              href="https://wa.me/573001234567?text=Hola%20Dromedicinal"
+              href={whatsappUrl.replace('%20pedido', '')}
               variant="whatsapp"
               size="lg"
               external
@@ -227,7 +305,7 @@ export default function HomePage() {
               WhatsApp
             </ButtonLink>
             <ButtonLink
-              href="https://www.rappi.com.co"
+              href={rappiUrl}
               size="lg"
               external
               icon={<IconRappi className="w-5 h-5" />}
@@ -250,8 +328,7 @@ export default function HomePage() {
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Horarios de atención</h3>
               <p className="text-gray-600 text-sm">
-                Lunes a Sábado: 7:00 AM - 9:00 PM<br />
-                Domingos y Festivos: 8:00 AM - 2:00 PM
+                {settings.business_hours || 'Lunes a Sábado: 7:00 AM - 9:00 PM\nDomingos y Festivos: 8:00 AM - 2:00 PM'}
               </p>
             </div>
 
@@ -262,8 +339,7 @@ export default function HomePage() {
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Ubicación</h3>
               <p className="text-gray-600 text-sm">
-                Calle 123 #45-67<br />
-                Bogotá, Colombia
+                {settings.address || 'Calle 123 #45-67, Bogotá'}
               </p>
             </div>
 
@@ -274,8 +350,10 @@ export default function HomePage() {
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Contáctanos</h3>
               <p className="text-gray-600 text-sm">
-                Teléfono: (601) 123 4567<br />
-                WhatsApp: 300 123 4567
+                {settings.phone && `Teléfono: ${settings.phone}`}
+                {settings.phone && settings.whatsapp_number && <br />}
+                {settings.whatsapp_number && `WhatsApp: ${settings.whatsapp_number}`}
+                {!settings.phone && !settings.whatsapp_number && 'Contacto disponible'}
               </p>
             </div>
           </div>

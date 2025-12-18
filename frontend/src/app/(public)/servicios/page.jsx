@@ -1,5 +1,7 @@
 import { generateMetadata as generateSEOMetadata } from '@/lib/seo';
 import { ButtonLink } from '@/components/ui/Button';
+import { publicAPI } from '@/lib/api';
+import { getSettings } from '@/lib/settings';
 import {
   IconWhatsApp,
   IconSyringe,
@@ -18,52 +20,48 @@ export const metadata = generateSEOMetadata({
   path: '/servicios',
 });
 
-const services = [
-  {
-    id: 1,
-    icon: IconSyringe,
-    title: 'Inyectología',
-    description: 'Aplicación profesional de medicamentos inyectables. Contamos con personal capacitado y todas las medidas de bioseguridad.',
-    features: ['Personal certificado', 'Ambiente estéril', 'Horario extendido'],
-  },
-  {
-    id: 2,
-    icon: IconHeartbeat,
-    title: 'Toma de Tensión',
-    description: 'Control de presión arterial con equipos digitales de última generación. Incluye registro y seguimiento.',
-    features: ['Equipos calibrados', 'Registro de historial', 'Sin costo'],
-  },
-  {
-    id: 3,
-    icon: IconDrop,
-    title: 'Glicemia',
-    description: 'Medición rápida y precisa de glucosa en sangre. Ideal para control de diabetes.',
-    features: ['Resultados inmediatos', 'Lancetas estériles', 'Orientación incluida'],
-  },
-  {
-    id: 4,
-    icon: IconTruck,
-    title: 'Domicilios',
-    description: 'Entrega de medicamentos y productos a la comodidad de tu hogar. Cobertura en toda la ciudad.',
-    features: ['Entrega rápida', 'Cobertura amplia', 'Pago contra entrega'],
-  },
-  {
-    id: 5,
-    icon: IconBeaker,
-    title: 'Asesoría Farmacéutica',
-    description: 'Orientación profesional sobre medicamentos, dosis, interacciones y uso correcto.',
-    features: ['Químico farmacéutico', 'Atención personalizada', 'Sin costo'],
-  },
-  {
-    id: 6,
-    icon: IconClipboard,
-    title: 'Pedidos Especiales',
-    description: 'Gestionamos la consecución de medicamentos de difícil acceso o bajo fórmula médica.',
-    features: ['Medicamentos importados', 'Fórmulas magistrales', 'Seguimiento del pedido'],
-  },
-];
+// Mapeo de iconos por nombre de servicio
+const serviceIconMap = {
+  'inyectologia': IconSyringe,
+  'inyectología': IconSyringe,
+  'toma de tension': IconHeartbeat,
+  'toma de tensión': IconHeartbeat,
+  'glicemia': IconDrop,
+  'domicilios': IconTruck,
+  'asesoria': IconBeaker,
+  'asesoría': IconBeaker,
+  'pedidos especiales': IconClipboard,
+};
 
-export default function ServiciosPage() {
+function getServiceIcon(name) {
+  const key = (name || '').toLowerCase();
+  return serviceIconMap[key] || IconBeaker;
+}
+
+export default async function ServiciosPage() {
+  // Obtener servicios de la API
+  let services = [];
+  let settings = {};
+
+  try {
+    const [servicesRes, settingsData] = await Promise.all([
+      publicAPI.getServices(),
+      getSettings(),
+    ]);
+
+    services = servicesRes.data || [];
+    settings = settingsData || {};
+    
+    // Ordenar por campo order si existe
+    services.sort((a, b) => (a.order || 0) - (b.order || 0));
+  } catch (error) {
+    console.error('Error cargando servicios:', error);
+    // Continuar con array vacío
+  }
+
+  const whatsappNumber = (settings.whatsapp_number || '573001234567').replace(/[^0-9]/g, '');
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal%2C%20quiero%20informaci%C3%B3n%20sobre%20un%20servicio`;
+
   return (
     <div className="py-8 lg:py-12">
       <div className="container-app">
@@ -80,32 +78,42 @@ export default function ServiciosPage() {
 
         {/* Services grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {services.map((service) => {
-            const Icon = service.icon;
-            return (
-              <article
-                key={service.id}
-                className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
-              >
-                <div className="w-14 h-14 rounded-xl bg-brand-green-light flex items-center justify-center mb-4">
-                  <Icon className="w-7 h-7 text-brand-green" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">
-                  {service.title}
-                </h2>
-                <p className="text-gray-600 mb-4">{service.description}</p>
-                
-                <ul className="space-y-2">
-                  {service.features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm text-gray-500">
-                      <IconCheckCircle className="w-4 h-4 text-brand-green shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            );
-          })}
+          {services.length > 0 ? (
+            services.map((service) => {
+              const Icon = getServiceIcon(service.name);
+              const features = service.features || [];
+              
+              return (
+                <article
+                  key={service.id}
+                  className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+                >
+                  <div className="w-14 h-14 rounded-xl bg-brand-green-light flex items-center justify-center mb-4">
+                    <Icon className="w-7 h-7 text-brand-green" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-3">
+                    {service.name}
+                  </h2>
+                  <p className="text-gray-600 mb-4">{service.description}</p>
+                  
+                  {features.length > 0 && (
+                    <ul className="space-y-2">
+                      {features.map((feature, index) => (
+                        <li key={index} className="flex items-center gap-2 text-sm text-gray-500">
+                          <IconCheckCircle className="w-4 h-4 text-brand-green shrink-0" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </article>
+              );
+            })
+          ) : (
+            <div className="col-span-full text-center text-gray-500 py-8">
+              No hay servicios disponibles en este momento.
+            </div>
+          )}
         </div>
 
         {/* CTA */}
@@ -119,7 +127,7 @@ export default function ServiciosPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <ButtonLink
-              href="https://wa.me/573001234567?text=Hola%20Dromedicinal%2C%20quiero%20informaci%C3%B3n%20sobre%20un%20servicio"
+              href={whatsappUrl}
               variant="whatsapp"
               size="lg"
               external

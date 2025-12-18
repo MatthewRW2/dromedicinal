@@ -1,50 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { IconChevronDown, IconWhatsApp } from '@/components/icons';
-
-const faqs = [
-  {
-    id: 1,
-    question: '¿Cómo puedo hacer un pedido?',
-    answer: 'Puedes hacer tu pedido de varias formas: escribiéndonos por WhatsApp al 300 123 4567, a través de Rappi, o visitando nuestra tienda física. También puedes navegar nuestro catálogo en línea y usar el botón "Pedir por WhatsApp" en cualquier producto.',
-  },
-  {
-    id: 2,
-    question: '¿Realizan domicilios?',
-    answer: 'Sí, realizamos domicilios en Bogotá. El costo y tiempo de entrega dependen de la zona. Contáctanos por WhatsApp para más información sobre cobertura y tarifas.',
-  },
-  {
-    id: 3,
-    question: '¿Cuál es el horario de atención?',
-    answer: 'Nuestro horario es: Lunes a Sábado de 7:00 AM a 9:00 PM, Domingos y Festivos de 8:00 AM a 2:00 PM. El servicio de domicilios tiene el mismo horario.',
-  },
-  {
-    id: 4,
-    question: '¿Necesito fórmula médica para comprar medicamentos?',
-    answer: 'Algunos medicamentos requieren fórmula médica según la regulación del INVIMA. Los medicamentos de venta libre no la necesitan. Si tienes dudas sobre un producto específico, consúltanos.',
-  },
-  {
-    id: 5,
-    question: '¿Qué métodos de pago aceptan?',
-    answer: 'Aceptamos efectivo, tarjetas débito y crédito, transferencias bancarias y pagos por Nequi o Daviplata. Para domicilios también puedes pagar contra entrega.',
-  },
-  {
-    id: 6,
-    question: '¿Puedo devolver un producto?',
-    answer: 'Por normativa sanitaria, los medicamentos no tienen cambio ni devolución una vez dispensados. Para otros productos, contáctanos dentro de las primeras 24 horas presentando la factura.',
-  },
-  {
-    id: 7,
-    question: '¿Ofrecen servicio de inyectología?',
-    answer: 'Sí, contamos con servicio de inyectología profesional. Aplicamos medicamentos con todas las medidas de bioseguridad. Este servicio está disponible en horario de atención.',
-  },
-  {
-    id: 8,
-    question: '¿Cómo puedo consultar la disponibilidad de un producto?',
-    answer: 'La forma más rápida es escribirnos por WhatsApp con el nombre del producto. También puedes llamarnos o visitar nuestra tienda. Actualizamos constantemente nuestro inventario.',
-  },
-];
+import { publicAPI } from '@/lib/api';
+import { getSettings } from '@/lib/settings';
+import Spinner from '@/components/ui/Spinner';
 
 function FAQItem({ faq, isOpen, onToggle }) {
   return (
@@ -69,10 +29,52 @@ function FAQItem({ faq, isOpen, onToggle }) {
 
 export default function FAQPage() {
   const [openId, setOpenId] = useState(null);
+  const [faqs, setFaqs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [whatsappNumber, setWhatsappNumber] = useState('573001234567');
+
+  useEffect(() => {
+    const loadFAQs = async () => {
+      try {
+        const faqsRes = await publicAPI.getFAQs();
+        
+        // Obtener settings desde la API
+        let settings = {};
+        try {
+          const settingsRes = await publicAPI.getSettings();
+          settings = settingsRes.data || {};
+        } catch (err) {
+          // Ignorar error de settings
+        }
+
+        let faqsData = faqsRes.data || [];
+        
+        // Filtrar solo FAQs activos
+        faqsData = faqsData.filter(faq => faq.is_active !== false);
+        
+        // Ordenar por campo order si existe
+        faqsData.sort((a, b) => (a.order || 0) - (b.order || 0));
+        
+        setFaqs(faqsData);
+        
+        if (settings?.whatsapp_number) {
+          setWhatsappNumber(settings.whatsapp_number.replace(/[^0-9]/g, ''));
+        }
+      } catch (error) {
+        console.error('Error cargando FAQs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFAQs();
+  }, []);
 
   const toggleFAQ = (id) => {
     setOpenId(openId === id ? null : id);
   };
+
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal%2C%20tengo%20una%20pregunta`;
 
   return (
     <div className="py-8 lg:py-12">
@@ -89,18 +91,29 @@ export default function FAQPage() {
         </div>
 
         {/* FAQ List */}
-        <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-200">
-          <div className="p-6 lg:p-8">
-            {faqs.map((faq) => (
-              <FAQItem
-                key={faq.id}
-                faq={faq}
-                isOpen={openId === faq.id}
-                onToggle={() => toggleFAQ(faq.id)}
-              />
-            ))}
+        {loading ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+            <Spinner size="lg" />
+            <p className="mt-4 text-gray-500">Cargando preguntas frecuentes...</p>
           </div>
-        </div>
+        ) : faqs.length > 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-200">
+            <div className="p-6 lg:p-8">
+              {faqs.map((faq) => (
+                <FAQItem
+                  key={faq.id}
+                  faq={faq}
+                  isOpen={openId === faq.id}
+                  onToggle={() => toggleFAQ(faq.id)}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+            <p className="text-gray-500">No hay preguntas frecuentes disponibles en este momento.</p>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="mt-8 text-center p-8 bg-brand-blue-light rounded-xl">
@@ -111,7 +124,7 @@ export default function FAQPage() {
             Escríbenos por WhatsApp y te ayudamos con gusto.
           </p>
           <a
-            href="https://wa.me/573001234567?text=Hola%20Dromedicinal%2C%20tengo%20una%20pregunta"
+            href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-whatsapp text-white font-medium rounded-lg hover:bg-whatsapp-dark transition-colors"

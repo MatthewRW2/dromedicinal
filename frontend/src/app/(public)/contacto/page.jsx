@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
 import Input, { Textarea, Select } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
+import { publicAPI } from '@/lib/api';
+import Spinner from '@/components/ui/Spinner';
 import {
   IconWhatsApp,
   IconPhone,
@@ -23,6 +25,8 @@ const subjectOptions = [
 export default function ContactoPage() {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
+  const [loadingSettings, setLoadingSettings] = useState(true);
+  const [settings, setSettings] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -30,6 +34,22 @@ export default function ContactoPage() {
     subject: '',
     message: '',
   });
+
+  // Cargar settings al montar
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await publicAPI.getSettings();
+        setSettings(response.data || {});
+      } catch (error) {
+        console.error('Error cargando settings:', error);
+      } finally {
+        setLoadingSettings(false);
+      }
+    };
+
+    loadSettings();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,11 +61,7 @@ export default function ContactoPage() {
     setLoading(true);
 
     try {
-      // Aquí iría la llamada a la API
-      // await publicAPI.sendContact(formData);
-      
-      // Simular envío
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await publicAPI.sendContact(formData);
       
       toast.success('¡Mensaje enviado! Te responderemos pronto.');
       setFormData({
@@ -56,11 +72,19 @@ export default function ContactoPage() {
         message: '',
       });
     } catch (error) {
-      toast.error('Error al enviar el mensaje. Intenta de nuevo.');
+      toast.error(error.message || 'Error al enviar el mensaje. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }
   };
+
+  const whatsappNumber = (settings.whatsapp_number || '573001234567').replace(/[^0-9]/g, '');
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal`;
+  const phoneNumber = settings.phone || '(601) 123 4567';
+  const email = settings.contact_email || 'contacto@dromedicinal.com';
+  const address = settings.address || 'Calle 123 #45-67, Bogotá, Colombia';
+  const businessHours = settings.business_hours || 'Lun-Sáb: 7am - 9pm | Dom: 8am - 2pm';
+  const googleMapsUrl = settings.google_maps_url || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.8529!2d-74.0817!3d4.6097!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNMKwMzYnMzUuMCJOIDc0wrAwNCc1NC4xIlc!5e0!3m2!1ses!2sco!4v1234567890';
 
   return (
     <div className="py-8 lg:py-12">
@@ -143,7 +167,7 @@ export default function ContactoPage() {
               </h2>
               <div className="space-y-3">
                 <a
-                  href="https://wa.me/573001234567?text=Hola%20Dromedicinal"
+                  href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 p-3 bg-white rounded-lg hover:shadow-md transition-shadow"
@@ -153,11 +177,11 @@ export default function ContactoPage() {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">WhatsApp</p>
-                    <p className="text-sm text-gray-500">300 123 4567</p>
+                    <p className="text-sm text-gray-500">{settings.whatsapp_number || '300 123 4567'}</p>
                   </div>
                 </a>
                 <a
-                  href="tel:+576011234567"
+                  href={`tel:${phoneNumber.replace(/[^0-9+]/g, '')}`}
                   className="flex items-center gap-3 p-3 bg-white rounded-lg hover:shadow-md transition-shadow"
                 >
                   <div className="w-10 h-10 rounded-lg bg-brand-blue-light flex items-center justify-center">
@@ -165,11 +189,11 @@ export default function ContactoPage() {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Teléfono</p>
-                    <p className="text-sm text-gray-500">(601) 123 4567</p>
+                    <p className="text-sm text-gray-500">{phoneNumber}</p>
                   </div>
                 </a>
                 <a
-                  href="mailto:contacto@dromedicinal.com"
+                  href={`mailto:${email}`}
                   className="flex items-center gap-3 p-3 bg-white rounded-lg hover:shadow-md transition-shadow"
                 >
                   <div className="w-10 h-10 rounded-lg bg-brand-green-light flex items-center justify-center">
@@ -177,7 +201,7 @@ export default function ContactoPage() {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Correo</p>
-                    <p className="text-sm text-gray-500">contacto@dromedicinal.com</p>
+                    <p className="text-sm text-gray-500">{email}</p>
                   </div>
                 </a>
               </div>
@@ -186,27 +210,33 @@ export default function ContactoPage() {
             {/* Location */}
             <div>
               <h2 className="font-semibold text-gray-900 mb-4">Ubicación</h2>
-              <div className="bg-gray-200 rounded-xl overflow-hidden aspect-video">
-                {/* Google Maps embed */}
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.8529!2d-74.0817!3d4.6097!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNMKwMzYnMzUuMCJOIDc0wrAwNCc1NC4xIlc!5e0!3m2!1ses!2sco!4v1234567890"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Ubicación Dromedicinal"
-                />
-              </div>
+              {loadingSettings ? (
+                <div className="bg-gray-200 rounded-xl aspect-video flex items-center justify-center">
+                  <Spinner />
+                </div>
+              ) : (
+                <div className="bg-gray-200 rounded-xl overflow-hidden aspect-video">
+                  {/* Google Maps embed */}
+                  <iframe
+                    src={googleMapsUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Ubicación Dromedicinal"
+                  />
+                </div>
+              )}
               <div className="mt-4 space-y-2 text-gray-600">
                 <p className="flex items-center gap-2">
                   <IconLocation className="w-4 h-4 text-brand-blue" />
-                  Calle 123 #45-67, Bogotá, Colombia
+                  {address}
                 </p>
                 <p className="flex items-center gap-2">
                   <IconClock className="w-4 h-4 text-brand-blue" />
-                  Lun-Sáb: 7am - 9pm | Dom: 8am - 2pm
+                  {businessHours}
                 </p>
               </div>
             </div>

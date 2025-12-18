@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { getSettings } from '@/lib/settings';
+import { publicAPI } from '@/lib/api';
 import {
   IconWhatsApp,
   IconInstagram,
@@ -33,8 +35,32 @@ const footerLinks = {
   ],
 };
 
-export default function Footer() {
+export default async function Footer() {
   const currentYear = new Date().getFullYear();
+  
+  // Obtener settings y enlaces
+  let settings = {};
+  let links = [];
+  
+  try {
+    const [settingsData, linksRes] = await Promise.all([
+      getSettings(),
+      publicAPI.getLinks().catch(() => ({ data: [] })),
+    ]);
+    
+    settings = settingsData || {};
+    links = linksRes.data || [];
+  } catch (error) {
+    // Usar valores por defecto
+  }
+  
+  const address = settings.address || 'Calle 123 #45-67, Bogotá, Colombia';
+  const phone = settings.phone || '(601) 123 4567';
+  const businessHours = settings.business_hours || 'Lun-Sáb: 7am - 9pm | Dom: 8am - 2pm';
+  const whatsappNumber = (settings.whatsapp_number || '573001234567').replace(/[^0-9]/g, '');
+  const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+  const instagramUrl = settings.instagram_url || '#';
+  const facebookUrl = settings.facebook_url || '#';
 
   return (
     <footer className="bg-gray-900 text-gray-300">
@@ -59,24 +85,30 @@ export default function Footer() {
             
             {/* Contact info */}
             <div className="space-y-2 text-sm">
-              <p className="flex items-center gap-2">
-                <IconLocation className="w-4 h-4 text-brand-blue" />
-                Calle 123 #45-67, Bogotá, Colombia
-              </p>
-              <p className="flex items-center gap-2">
-                <IconPhone className="w-4 h-4 text-brand-blue" />
-                (601) 123 4567
-              </p>
-              <p className="flex items-center gap-2">
-                <IconClock className="w-4 h-4 text-brand-blue" />
-                Lun-Sáb: 7am - 9pm | Dom: 8am - 2pm
-              </p>
+              {address && (
+                <p className="flex items-center gap-2">
+                  <IconLocation className="w-4 h-4 text-brand-blue" />
+                  {address}
+                </p>
+              )}
+              {phone && (
+                <p className="flex items-center gap-2">
+                  <IconPhone className="w-4 h-4 text-brand-blue" />
+                  {phone}
+                </p>
+              )}
+              {businessHours && (
+                <p className="flex items-center gap-2">
+                  <IconClock className="w-4 h-4 text-brand-blue" />
+                  {businessHours}
+                </p>
+              )}
             </div>
 
             {/* Social links */}
             <div className="flex items-center gap-4 mt-6">
               <a
-                href="https://wa.me/573001234567"
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-whatsapp/10 text-whatsapp hover:bg-whatsapp hover:text-white transition-colors"
@@ -84,24 +116,28 @@ export default function Footer() {
               >
                 <IconWhatsApp className="w-5 h-5" />
               </a>
-              <a
-                href="https://instagram.com/dromedicinal"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-pink-500/10 text-pink-500 hover:bg-pink-500 hover:text-white transition-colors"
-                aria-label="Instagram"
-              >
-                <IconInstagram className="w-5 h-5" />
-              </a>
-              <a
-                href="https://facebook.com/dromedicinal"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors"
-                aria-label="Facebook"
-              >
-                <IconFacebook className="w-5 h-5" />
-              </a>
+              {instagramUrl !== '#' && (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full bg-pink-500/10 text-pink-500 hover:bg-pink-500 hover:text-white transition-colors"
+                  aria-label="Instagram"
+                >
+                  <IconInstagram className="w-5 h-5" />
+                </a>
+              )}
+              {facebookUrl !== '#' && (
+                <a
+                  href={facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full bg-blue-600/10 text-blue-600 hover:bg-blue-600 hover:text-white transition-colors"
+                  aria-label="Facebook"
+                >
+                  <IconFacebook className="w-5 h-5" />
+                </a>
+              )}
             </div>
           </div>
 

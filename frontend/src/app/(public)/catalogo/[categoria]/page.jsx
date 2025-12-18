@@ -1,107 +1,78 @@
 import { notFound } from 'next/navigation';
 import { generateCategoryMetadata } from '@/lib/seo';
-import { ProductCard, FiltersBar, Pagination, PaginationInfo } from '@/components/catalogo';
-
-// Mock data - En producción vendría de la API
-const categoriesData = {
-  'medicamentos': {
-    id: 1,
-    name: 'Medicamentos',
-    slug: 'medicamentos',
-    description: 'Medicamentos de venta libre y bajo fórmula médica',
-    product_count: 150,
-  },
-  'cuidado-personal': {
-    id: 2,
-    name: 'Cuidado Personal',
-    slug: 'cuidado-personal',
-    description: 'Productos para el cuidado de tu piel, cabello y más',
-    product_count: 80,
-  },
-};
-
-const mockProducts = [
-  {
-    id: 1,
-    slug: 'acetaminofen-500mg-x10',
-    name: 'Acetaminofén 500mg',
-    presentation: 'Caja x 10 tabletas',
-    price: 5500,
-    availability_status: 'IN_STOCK',
-    primary_image: null,
-  },
-  {
-    id: 2,
-    slug: 'ibuprofeno-400mg-x20',
-    name: 'Ibuprofeno 400mg',
-    presentation: 'Caja x 20 tabletas',
-    price: 12000,
-    availability_status: 'IN_STOCK',
-    primary_image: null,
-  },
-  {
-    id: 3,
-    slug: 'loratadina-10mg-x10',
-    name: 'Loratadina 10mg',
-    presentation: 'Caja x 10 tabletas',
-    price: 8500,
-    availability_status: 'LOW_STOCK',
-    primary_image: null,
-  },
-  {
-    id: 4,
-    slug: 'omeprazol-20mg-x14',
-    name: 'Omeprazol 20mg',
-    presentation: 'Caja x 14 cápsulas',
-    price: 15000,
-    availability_status: 'IN_STOCK',
-    primary_image: null,
-  },
-  {
-    id: 5,
-    slug: 'vitamina-c-500mg-x100',
-    name: 'Vitamina C 500mg',
-    presentation: 'Frasco x 100 tabletas',
-    price: 25000,
-    availability_status: 'IN_STOCK',
-    primary_image: null,
-  },
-  {
-    id: 6,
-    slug: 'suero-oral-pedialyte',
-    name: 'Suero Oral Pedialyte',
-    presentation: 'Botella 500ml',
-    price: 18000,
-    availability_status: 'OUT_OF_STOCK',
-    primary_image: null,
-  },
-];
+import { publicAPI } from '@/lib/api';
+import CategoryProductsClient from '@/components/catalogo/CategoryProductsClient';
 
 export async function generateMetadata({ params }) {
   const { categoria } = await params;
-  const category = categoriesData[categoria];
   
-  if (!category) {
+  try {
+    const response = await publicAPI.getCategory(categoria);
+    const category = response.data;
+    
+    if (!category) {
+      return { title: 'Categoría no encontrada' };
+    }
+    
+    return generateCategoryMetadata(category);
+  } catch (error) {
     return { title: 'Categoría no encontrada' };
   }
-  
-  return generateCategoryMetadata(category);
 }
 
 export default async function CategoryPage({ params, searchParams }) {
   const { categoria } = await params;
-  const category = categoriesData[categoria];
   
+  // Obtener categoría
+  let category = null;
+  try {
+    const categoryRes = await publicAPI.getCategory(categoria);
+    category = categoryRes.data;
+  } catch (error) {
+    notFound();
+  }
+
   if (!category) {
     notFound();
   }
 
-  // En producción, aquí se haría el fetch a la API con los filtros
-  const products = mockProducts;
-  const totalProducts = products.length;
-  const currentPage = 1;
+  // Obtener parámetros de búsqueda y filtros
+  const page = parseInt(searchParams?.page || '1', 10);
   const perPage = 24;
-  const totalPages = Math.ceil(totalProducts / perPage);
+  const q = searchParams?.q || '';
+  const availability = searchParams?.availability || '';
+  const minPrice = searchParams?.min_price || '';
+  const maxPrice = searchParams?.max_price || '';
+
+  // Construir parámetros para la API
+  const apiParams = {
+    category: categoria,
+    page,
+    per_page: perPage,
+  };
+
+  if (q) apiParams.q = q;
+  if (availability) apiParams.availability = availability;
+  if (minPrice) apiParams.min_price = minPrice;
+  if (maxPrice) apiParams.max_price = maxPrice;
+
+  // Obtener productos
+  let products = [];
+  let meta = {
+    current_page: 1,
+    per_page: perPage,
+    total: 0,
+    total_pages: 1,
+  };
+
+  try {
+    const productsRes = await publicAPI.getProducts(apiParams);
+    products = productsRes.data || [];
+    meta = productsRes.meta || meta;
+  } catch (error) {
+    console.error('Error cargando productos:', error);
+    // Continuar con arrays vacíos
+  }
 
   return (
     <div className="py-8 lg:py-12">
@@ -127,42 +98,12 @@ export default async function CategoryPage({ params, searchParams }) {
           )}
         </div>
 
-        {/* Filters */}
-        <div className="mb-8">
-          <FiltersBar
-            onSearch={(term) => console.log('Search:', term)}
-            onFilter={(filters) => console.log('Filters:', filters)}
-          />
-        </div>
-
-        {/* Results info */}
-        <div className="flex items-center justify-between mb-6">
-          <PaginationInfo page={currentPage} perPage={perPage} total={totalProducts} />
-        </div>
-
-        {/* Products grid */}
-        {products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <p className="text-gray-500 text-lg">No se encontraron productos</p>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-10">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={(page) => console.log('Page:', page)}
-            />
-          </div>
-        )}
+        {/* Products with filters and pagination */}
+        <CategoryProductsClient
+          category={category}
+          initialProducts={products}
+          initialMeta={meta}
+        />
       </div>
     </div>
   );

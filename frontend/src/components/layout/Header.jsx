@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ButtonLink } from '@/components/ui/Button';
+import { publicAPI } from '@/lib/api';
 import {
   IconMenu,
   IconClose,
@@ -22,6 +23,24 @@ const navigation = [
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [settings, setSettings] = useState({});
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await publicAPI.getSettings();
+        setSettings(response.data || {});
+      } catch (error) {
+        // Ignorar error, usar valores por defecto
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  const whatsappNumber = (settings.whatsapp_number || '573001234567').replace(/[^0-9]/g, '');
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal`;
+  const rappiUrl = settings.rappi_url || '#';
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
@@ -35,7 +54,7 @@ export default function Header() {
             </p>
             <div className="flex items-center gap-4 ml-auto">
               <a
-                href="https://wa.me/573001234567?text=Hola%20Dromedicinal"
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
@@ -44,7 +63,7 @@ export default function Header() {
                 <span className="hidden sm:inline">WhatsApp</span>
               </a>
               <a
-                href="https://www.rappi.com.co"
+                href={rappiUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
