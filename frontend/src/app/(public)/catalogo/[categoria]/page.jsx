@@ -36,13 +36,14 @@ export default async function CategoryPage({ params, searchParams }) {
     notFound();
   }
 
-  // Obtener parámetros de búsqueda y filtros
-  const page = parseInt(searchParams?.page || '1', 10);
+  // Obtener parámetros de búsqueda y filtros (searchParams es una Promise en Next.js 15+)
+  const resolvedSearchParams = await searchParams;
+  const page = Math.max(1, parseInt(resolvedSearchParams?.page || '1', 10) || 1);
   const perPage = 24;
-  const q = searchParams?.q || '';
-  const availability = searchParams?.availability || '';
-  const minPrice = searchParams?.min_price || '';
-  const maxPrice = searchParams?.max_price || '';
+  const q = resolvedSearchParams?.q || '';
+  const availability = resolvedSearchParams?.availability || '';
+  const minPrice = resolvedSearchParams?.min_price || '';
+  const maxPrice = resolvedSearchParams?.max_price || '';
 
   // Construir parámetros para la API
   const apiParams = {
@@ -67,11 +68,26 @@ export default async function CategoryPage({ params, searchParams }) {
 
   try {
     const productsRes = await publicAPI.getProducts(apiParams);
-    products = productsRes.data || [];
-    meta = productsRes.meta || meta;
+    products = Array.isArray(productsRes.data) ? productsRes.data : [];
+    
+    // Validar y normalizar meta para evitar NaN
+    if (productsRes.meta) {
+      meta = {
+        current_page: Number(productsRes.meta.current_page) || 1,
+        per_page: Number(productsRes.meta.per_page) || perPage,
+        total: Number(productsRes.meta.total) || 0,
+        total_pages: Number(productsRes.meta.total_pages) || 1,
+      };
+    }
   } catch (error) {
-    console.error('Error cargando productos:', error);
-    // Continuar con arrays vacíos
+    // Error silencioso - continuar con arrays vacíos y meta por defecto
+    products = [];
+    meta = {
+      current_page: 1,
+      per_page: perPage,
+      total: 0,
+      total_pages: 1,
+    };
   }
 
   return (

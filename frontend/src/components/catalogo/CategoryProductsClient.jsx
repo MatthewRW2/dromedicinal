@@ -34,12 +34,14 @@ export default function CategoryProductsClient({
     loadSettings();
   }, []);
 
-  const products = initialProducts || [];
-  const meta = initialMeta || {
-    current_page: 1,
-    per_page: 24,
-    total: 0,
-    total_pages: 1,
+  const products = Array.isArray(initialProducts) ? initialProducts : [];
+  
+  // Validar y normalizar meta para evitar NaN
+  const meta = {
+    current_page: Number(initialMeta?.current_page) || 1,
+    per_page: Number(initialMeta?.per_page) || 24,
+    total: Number(initialMeta?.total) || 0,
+    total_pages: Number(initialMeta?.total_pages) || 1,
   };
 
   // Función para actualizar URL con nuevos parámetros
@@ -120,7 +122,7 @@ export default function CategoryProductsClient({
       )}
 
       {/* Pagination */}
-      {meta.total_pages > 1 && (
+      {meta.total_pages > 1 && Number.isFinite(meta.total_pages) && (
         <div className="mt-10">
           <Pagination
             currentPage={meta.current_page}
