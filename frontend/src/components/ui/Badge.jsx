@@ -7,6 +7,7 @@
 
 const variants = {
   default: 'bg-gray-100 text-gray-700',
+  secondary: 'bg-gray-200 text-gray-700',
   success: 'bg-brand-green-light text-brand-green-dark',
   warning: 'bg-brand-orange-light text-amber-700',
   danger: 'bg-brand-red-light text-brand-red',
