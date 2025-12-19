@@ -185,6 +185,45 @@ body {
   50% { opacity: 0.7; }
 }
 
+@keyframes whatsapp-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 14px 0 rgba(18, 140, 126, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 20px 4px rgba(18, 140, 126, 0.7), 0 0 0 0 rgba(18, 140, 126, 0.4);
+  }
+}
+
+/* Animación sutil para el botón flotante de WhatsApp */
+@keyframes whatsapp-float {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes whatsapp-shine {
+  0% {
+    box-shadow: 0 4px 14px 0 rgba(37, 211, 102, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px 4px rgba(37, 211, 102, 0.5), 0 0 0 8px rgba(37, 211, 102, 0.1);
+  }
+  100% {
+    box-shadow: 0 4px 14px 0 rgba(37, 211, 102, 0.3);
+  }
+}
+
+.whatsapp-float-button {
+  animation: whatsapp-float 3s ease-in-out infinite, whatsapp-shine 2.5s ease-in-out infinite;
+}
+
+.whatsapp-float-button:hover {
+  animation: none;
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }

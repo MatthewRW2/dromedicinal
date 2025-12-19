@@ -1,5 +1,6 @@
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import WhatsAppFloatingButton from '@/components/layout/WhatsAppFloatingButton';
 
 /**
  * Layout para páginas públicas
@@ -13,6 +14,7 @@ export default function PublicLayout({ children }) {
         {children}
       </main>
       <Footer />
+      <WhatsAppFloatingButton />
     </div>
   );
 }
