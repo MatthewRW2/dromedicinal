@@ -306,10 +306,11 @@ export default async function HomePage() {
             </ButtonLink>
             <ButtonLink
               href={rappiUrl}
+              variant="ghost"
               size="lg"
               external
               icon={<IconRappi className="w-5 h-5" />}
-              className="bg-white text-brand-blue hover:bg-gray-100"
+              className="!bg-white !text-brand-blue hover:!bg-gray-100 border-0"
             >
               Rappi
             </ButtonLink>
