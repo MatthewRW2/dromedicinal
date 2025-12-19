@@ -15,6 +15,11 @@ const poppins = Poppins({
 export const metadata = generateSEOMetadata({
   title: null, // Solo "Dromedicinal" para home
   description: 'Tu droguería de confianza en Bogotá. Medicamentos, productos de cuidado personal y servicios de salud con atención personalizada. Pedidos por WhatsApp y Rappi.',
+  icons: {
+    icon: '/logo.ico',
+    shortcut: '/logo.ico',
+    apple: '/logo.ico',
+  },
 });
 
 export default async function RootLayout({ children }) {
@@ -25,6 +30,10 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="es" className={poppins.variable}>
       <head>
+        {/* Favicon */}
+        <link rel="icon" href="/logo.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="/logo.ico" type="image/x-icon" />
+        
         {/* Schema.org LocalBusiness para SEO local */}
         <script
           type="application/ld+json"

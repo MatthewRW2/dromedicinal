@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getSettings } from '@/lib/settings';
 import { publicAPI } from '@/lib/api';
 import {
@@ -70,12 +71,18 @@ export default async function Footer() {
           {/* Brand column */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full gradient-brand flex items-center justify-center">
-                <span className="text-white font-bold text-xl">D</span>
+              <div className="relative w-12 h-12 shrink-0">
+                <Image
+                  src="/logo.png?v=2"
+                  alt="Dromedicinal"
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">Dromedicinal</h2>
-                <p className="text-sm text-gray-400">Droguería</p>
+                <p className="text-sm text-gray-400">medicamentos, salud y hogar</p>
               </div>
             </Link>
             <p className="text-gray-400 mb-6 max-w-sm">

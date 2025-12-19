@@ -85,18 +85,19 @@ export default function Header() {
           <Link href="/" className="flex items-center gap-3 shrink-0">
             <div className="relative w-10 h-10 lg:w-12 lg:h-12 shrink-0">
               <Image
-                src="/logo.jpg"
+                src="/logo.png?v=2"
                 alt="Dromedicinal"
                 fill
                 className="object-contain"
                 priority
+                unoptimized
               />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-lg lg:text-xl font-bold text-brand-blue leading-tight">
+              <h1 className="text-lg lg:text-xl font-bold text-gray-800 leading-tight">
                 Dromedicinal
               </h1>
-              <p className="text-xs text-gray-500 -mt-0.5">Droguería</p>
+              <p className="text-xs text-gray-400 -mt-0.5">medicamentos, salud y hogar</p>
             </div>
           </Link>
 
