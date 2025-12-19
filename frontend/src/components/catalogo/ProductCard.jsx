@@ -21,6 +21,7 @@ export default function ProductCard({
     currency = 'COP',
     availability_status,
     primary_image,
+    requires_prescription, // Campo para medicamentos formulados
   } = product;
 
   const productUrl = `/producto/${slug}`;
@@ -59,18 +60,26 @@ export default function ProductCard({
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQADAD8PJdHm0GV9U5XdrNVd6L8nmkX0bFbNNbF9crX7H9NHZAq1vHiXOTHaTtXq50T6Xh0J+HzbfkH0//Z"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <IconImage className="w-12 h-12 text-gray-300" />
           </div>
         )}
-        {/* Availability badge */}
-        {availability_status && availability_status !== 'IN_STOCK' && (
-          <div className="absolute top-3 left-3">
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2">
+          {availability_status && availability_status !== 'IN_STOCK' && (
             <AvailabilityBadge status={availability_status} size="sm" />
-          </div>
-        )}
+          )}
+          {requires_prescription && (
+            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+              Requiere fórmula
+            </span>
+          )}
+        </div>
       </Link>
 
       {/* Content */}

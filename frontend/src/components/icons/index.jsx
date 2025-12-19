@@ -24,6 +24,7 @@ import {
   HiOutlineChevronDown,
   HiOutlineChevronUp,
   HiOutlinePlus,
+  HiOutlineMinus,
   HiOutlinePencil,
   HiOutlineTrash,
   HiOutlinePhotograph,
@@ -110,6 +111,7 @@ export const IconChevronUp = HiOutlineChevronUp;
 export const IconChevronDoubleLeft = HiMiniChevronDoubleLeft;
 export const IconChevronDoubleRight = HiMiniChevronDoubleRight;
 export const IconPlus = HiOutlinePlus;
+export const IconMinus = HiOutlineMinus;
 export const IconEdit = HiOutlinePencil;
 export const IconDelete = HiOutlineTrash;
 export const IconTrash = HiOutlineTrash;
@@ -130,6 +132,7 @@ export const IconCheckCircle = HiOutlineCheckCircle;
 export const IconWarning = HiOutlineExclamation;
 export const IconError = HiOutlineXCircle;
 export const IconInfo = HiOutlineInformationCircle;
+export const IconAlertCircle = HiOutlineExclamation; // Alias para AlertCircle
 
 // ===========================================
 // ICONOS DE CONTACTO
@@ -197,6 +200,7 @@ export const IconLinks = HiOutlineLink;
 export const IconUsers = HiOutlineUsers;
 export const IconReports = HiOutlineChartBar;
 export const IconDocuments = HiOutlineDocumentText;
+export const IconFileText = HiOutlineDocumentText; // Alias para FileText
 export const IconCalendar = HiOutlineCalendar;
 export const IconLogout = HiOutlineLogout;
 export const IconLogin = HiOutlineLogin;

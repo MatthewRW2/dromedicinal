@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { siteConfig, getWhatsAppUrl, getTelLink } from '@/config/siteConfig';
 import { getSettings } from '@/lib/settings';
 import { publicAPI } from '@/lib/api';
 import {
@@ -31,8 +32,10 @@ const footerLinks = {
     { name: 'Enlaces de Interés', href: '/enlaces' },
   ],
   legal: [
-    { name: 'Política de Privacidad', href: '/politica-privacidad' },
-    { name: 'Términos y Condiciones', href: '/terminos' },
+    { name: 'Política de Tratamiento de Datos', href: '/politica-de-tratamiento-de-datos' },
+    { name: 'Términos y Condiciones', href: '/terminos-y-condiciones' },
+    { name: 'Política de Devoluciones', href: '/politica-de-devoluciones' },
+    { name: 'PQRS', href: '/pqrs' },
   ],
 };
 
@@ -55,13 +58,13 @@ export default async function Footer() {
     // Usar valores por defecto
   }
   
-  const address = settings.address || 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca';
-  const phone = settings.phone || '313 4243625';
-  const businessHours = settings.business_hours || 'Lun-Sáb: 7am - 9pm | Dom: 8am - 2pm';
-  const whatsappNumber = (settings.whatsapp_number || '573134243625').replace(/[^0-9]/g, '');
-  const whatsappUrl = `https://wa.me/${whatsappNumber}`;
-  const instagramUrl = settings.instagram_url || '#';
-  const facebookUrl = settings.facebook_url || '#';
+  // Usar siteConfig como base, permitir override desde settings
+  const address = settings.address || siteConfig.address.full;
+  const phone = settings.phone || siteConfig.phone.display;
+  const businessHours = settings.business_hours || siteConfig.openingHours.display;
+  const whatsappUrl = getWhatsAppUrl();
+  const instagramUrl = settings.instagram_url || siteConfig.social.instagramUrl || '#';
+  const facebookUrl = settings.facebook_url || siteConfig.social.facebookUrl || '#';
 
   return (
     <footer className="bg-gray-900 text-gray-300">

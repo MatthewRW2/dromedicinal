@@ -134,9 +134,14 @@ export default async function ProductPage({ params }) {
                 </p>
               )}
 
-              {/* Availability */}
-              <div className="mb-6">
+              {/* Availability y Prescription */}
+              <div className="mb-6 flex items-center gap-3 flex-wrap">
                 <AvailabilityBadge status={product.availability_status} />
+                {product.requires_prescription && (
+                  <span className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-amber-100 text-amber-800 border border-amber-200">
+                    ⚠️ Requiere fórmula médica
+                  </span>
+                )}
               </div>
 
               {/* Price */}
@@ -181,13 +186,26 @@ export default async function ProductPage({ params }) {
               </div>
 
               {/* Additional info */}
-              <div className="mt-8 p-4 bg-brand-blue-light rounded-lg flex gap-3">
-                <IconInfo className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
-                <p className="text-sm text-gray-700">
-                  <strong>¿Tienes dudas?</strong> Escríbenos por WhatsApp y te asesoramos 
-                  sobre este producto. También realizamos entregas a domicilio.
-                </p>
-              </div>
+              {product.requires_prescription ? (
+                <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg flex gap-3">
+                  <IconInfo className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="text-sm text-amber-800">
+                    <p className="font-semibold mb-1">Medicamento formulado</p>
+                    <p>
+                      Este producto requiere receta médica. Al hacer tu pedido por WhatsApp, 
+                      por favor adjunta la fórmula médica correspondiente.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-8 p-4 bg-brand-blue-light rounded-lg flex gap-3">
+                  <IconInfo className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
+                  <p className="text-sm text-gray-700">
+                    <strong>¿Tienes dudas?</strong> Escríbenos por WhatsApp y te asesoramos 
+                    sobre este producto. También realizamos entregas a domicilio.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

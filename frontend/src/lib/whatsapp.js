@@ -42,24 +42,42 @@ export function getProductOrderLink(product, whatsappNumber = null) {
 
 /**
  * Mensaje para pedir múltiples productos (carrito de intención)
+ * Incluye aviso de fórmula médica si hay productos Rx
  */
 export function getCartOrderLink(items, additionalInfo = {}) {
-  const { observations, address } = additionalInfo;
+  const { observations, address, neighborhood } = additionalInfo;
   
   let message = 'Hola Dromedicinal, quiero hacer este pedido:\n\n';
+  
+  // Verificar si hay productos que requieren receta
+  const hasPrescriptionItems = items.some(item => 
+    item.requires_prescription || 
+    item.name?.toLowerCase().includes('formulado') ||
+    item.category?.toLowerCase().includes('formulado')
+  );
   
   items.forEach((item, index) => {
     const { name, presentation, quantity } = item;
     const presentationText = presentation ? ` (${presentation})` : '';
-    message += `${index + 1}) ${name}${presentationText} x${quantity || 1}\n`;
+    const rxMarker = (item.requires_prescription || 
+      item.name?.toLowerCase().includes('formulado')) ? ' [Requiere fórmula]' : '';
+    message += `${index + 1}) ${name}${presentationText}${rxMarker} x${quantity || 1}\n`;
   });
 
-  if (observations) {
-    message += `\nObservaciones: ${observations}`;
+  if (hasPrescriptionItems) {
+    message += '\n⚠️ IMPORTANTE: Este pedido incluye medicamentos que requieren fórmula médica. Por favor, adjunta la receta médica en este chat.';
+  }
+
+  if (neighborhood) {
+    message += `\n\nBarrio de entrega: ${neighborhood}`;
   }
 
   if (address) {
     message += `\nDirección de entrega: ${address}`;
+  }
+
+  if (observations) {
+    message += `\nObservaciones: ${observations}`;
   }
 
   message += '\n\n¿Pueden confirmar disponibilidad y precio total?';

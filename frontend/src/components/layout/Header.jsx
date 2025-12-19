@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ButtonLink } from '@/components/ui/Button';
+import { siteConfig, getWhatsAppUrl } from '@/config/siteConfig';
+import { track } from '@/lib/track';
 import { publicAPI } from '@/lib/api';
 import {
   IconMenu,
@@ -32,17 +34,25 @@ export default function Header() {
         const response = await publicAPI.getSettings();
         setSettings(response.data || {});
       } catch (error) {
-        // Ignorar error, usar valores por defecto
+        // Ignorar error, usar valores por defecto de siteConfig
       }
     };
 
     loadSettings();
   }, []);
 
-  const whatsappNumber = (settings.whatsapp_number || '573134243625').replace(/[^0-9]/g, '');
-  const whatsappUrlGeneral = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal`;
-  const whatsappUrlOrder = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal%2C%20quiero%20hacer%20un%20pedido`;
-  const rappiUrl = settings.rappi_url || '#';
+  // Usar siteConfig como base, permitir override desde settings
+  const whatsappUrlGeneral = getWhatsAppUrl('Hola Dromedicinal');
+  const whatsappUrlOrder = getWhatsAppUrl('Hola Dromedicinal, quiero hacer un pedido');
+  const rappiUrl = settings.rappi_url || siteConfig.orderChannels.rappi.url || '#';
+
+  const handleWhatsAppClick = (source = 'header') => {
+    track('click_whatsapp_global', { source });
+  };
+
+  const handleRappiClick = () => {
+    track('click_rappi', { source: 'header' });
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
@@ -59,6 +69,7 @@ export default function Header() {
                 href={whatsappUrlGeneral}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={handleWhatsAppClick}
                 className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
               >
                 <IconWhatsApp className="w-4 h-4" />
@@ -68,6 +79,7 @@ export default function Header() {
                 href={rappiUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={handleRappiClick}
                 className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
               >
                 <IconRappi className="w-4 h-4" />
@@ -121,6 +133,7 @@ export default function Header() {
               variant="whatsapp"
               size="md"
               external
+              onClick={handleWhatsAppClick}
               icon={<IconWhatsApp className="w-5 h-5" />}
             >
               Pedir ahora
@@ -164,6 +177,7 @@ export default function Header() {
                 size="lg"
                 fullWidth
                 external
+                onClick={handleWhatsAppClick}
                 icon={<IconWhatsApp className="w-5 h-5" />}
               >
                 Pedir por WhatsApp

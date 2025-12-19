@@ -2,12 +2,15 @@
  * SEO Helpers - Metadata y configuración para SEO
  */
 
-const SITE_NAME = 'Dromedicinal';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://dromedicinal.com';
-const DEFAULT_DESCRIPTION = 'Tu droguería de confianza en Bogotá. Medicamentos, productos de cuidado personal y servicios de salud con atención personalizada. Pedidos por WhatsApp y Rappi.';
+import { siteConfig, getFullUrl } from '@/config/siteConfig';
+
+const SITE_NAME = siteConfig.siteName;
+const SITE_URL = siteConfig.siteUrl;
+const DEFAULT_DESCRIPTION = siteConfig.description;
 
 /**
  * Genera metadata base para páginas
+ * IMPORTANTE: El canonical se genera sin parámetros de consulta (UTM, etc.)
  */
 export function generateMetadata({
   title,
@@ -17,15 +20,17 @@ export function generateMetadata({
   noIndex = false,
 }) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
-  const url = `${SITE_URL}${path}`;
-  const ogImage = image || `${SITE_URL}/og-image.png`;
+  // Asegurar que el path no tenga parámetros de consulta para el canonical
+  const cleanPath = path.split('?')[0];
+  const url = getFullUrl(cleanPath);
+  const ogImage = image || siteConfig.defaultOgImage;
 
   return {
     title: fullTitle,
     description,
     metadataBase: new URL(SITE_URL),
     alternates: {
-      canonical: url,
+      canonical: url, // Sin parámetros UTM
     },
     openGraph: {
       title: fullTitle,
@@ -96,30 +101,37 @@ export function generateCategoryMetadata(category) {
 }
 
 /**
- * Schema.org LocalBusiness para SEO local
+ * Schema.org LocalBusiness/Pharmacy para SEO local
+ * Usa siteConfig como base, con opción de sobrescribir desde settings de API
  * @param {object|null} settings - Settings desde la API (opcional)
  */
 export function getLocalBusinessSchema(settings = null) {
-  const phone = settings?.phone || settings?.whatsapp_number || '313 4243625';
-  const email = settings?.contact_email || 'contacto@dromedicinal.com';
-  const address = settings?.address || 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca';
+  // Usar siteConfig como base, permitir override desde settings
+  const phone = settings?.phone || settings?.whatsapp_number || siteConfig.phone.e164;
+  const email = settings?.contact_email || siteConfig.email;
+  const address = settings?.address || siteConfig.address.full;
   
   // Extraer partes de la dirección si es posible
   const addressParts = address.split(',');
-  const streetAddress = addressParts[0]?.trim() || address;
-  const locality = addressParts[1]?.trim() || 'Bogotá';
-  const region = addressParts[2]?.trim() || 'Cundinamarca';
+  const streetAddress = addressParts[0]?.trim() || siteConfig.address.street;
+  const locality = addressParts[1]?.trim() || siteConfig.address.locality;
+  const region = addressParts[2]?.trim() || siteConfig.address.region;
   
-  // Formatear teléfono para Schema.org (agregar código de país si no lo tiene)
+  // Formatear teléfono para Schema.org
   const formattedPhone = phone.startsWith('+') ? phone : `+57${phone.replace(/[^0-9]/g, '')}`;
+  
+  // Construir sameAs solo con URLs válidas
+  const sameAs = [];
+  if (siteConfig.social.facebookUrl) sameAs.push(siteConfig.social.facebookUrl);
+  if (siteConfig.social.instagramUrl) sameAs.push(siteConfig.social.instagramUrl);
   
   return {
     '@context': 'https://schema.org',
-    '@type': 'Pharmacy',
-    name: SITE_NAME,
+    '@type': siteConfig.businessType,
+    name: siteConfig.siteName,
     alternateName: 'Droguería Dromedicinal',
-    description: DEFAULT_DESCRIPTION,
-    url: SITE_URL,
+    description: siteConfig.description,
+    url: siteConfig.siteUrl,
     telephone: formattedPhone,
     email: email,
     address: {
@@ -127,33 +139,25 @@ export function getLocalBusinessSchema(settings = null) {
       streetAddress: streetAddress,
       addressLocality: locality,
       addressRegion: region,
-      addressCountry: 'CO',
+      addressCountry: siteConfig.address.countryCode,
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 4.6097,
-      longitude: -74.0817,
+      latitude: siteConfig.geo.latitude,
+      longitude: siteConfig.geo.longitude,
     },
-    openingHoursSpecification: [
-      {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        opens: '07:00',
-        closes: '21:00',
-      },
-      {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: 'Sunday',
-        opens: '08:00',
-        closes: '14:00',
-      },
-    ],
+    openingHoursSpecification: siteConfig.openingHours.schema,
     priceRange: '$$',
-    image: `${SITE_URL}/og-image.png`,
-    sameAs: [
-      'https://www.instagram.com/dromedicinal',
-      'https://www.facebook.com/dromedicinal',
-    ],
+    image: siteConfig.defaultOgImage,
+    areaServed: siteConfig.coverageAreas.map(area => ({
+      '@type': 'City',
+      name: area,
+      containedIn: {
+        '@type': 'City',
+        name: siteConfig.address.locality,
+      },
+    })),
+    ...(sameAs.length > 0 && { sameAs }),
   };
 }
 
@@ -176,7 +180,7 @@ export function getProductSchema(product) {
     name,
     description: description || `${name} disponible en Dromedicinal`,
     image: primary_image,
-    url: `${SITE_URL}/producto/${slug}`,
+    url: getFullUrl(`/producto/${slug}`),
     offers: {
       '@type': 'Offer',
       price: price || 0,

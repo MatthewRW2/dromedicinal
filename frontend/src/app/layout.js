@@ -11,10 +11,13 @@ const poppins = Poppins({
   display: 'swap',
 });
 
+import { siteConfig } from '@/config/siteConfig';
+
 // Metadata base del sitio
 export const metadata = generateSEOMetadata({
   title: null, // Solo "Dromedicinal" para home
-  description: 'Tu droguería de confianza en Bogotá. Medicamentos, productos de cuidado personal y servicios de salud con atención personalizada. Pedidos por WhatsApp y Rappi.',
+  description: siteConfig.description,
+  path: '/',
   icons: {
     icon: '/logo.ico',
     shortcut: '/logo.ico',
