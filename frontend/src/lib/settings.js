@@ -25,8 +25,14 @@ export async function getSettings() {
     cacheTimestamp = Date.now();
     return cachedSettings;
   } catch (error) {
-    // Si falla, retornar valores por defecto
-    console.error('Error obteniendo settings:', error);
+    // Si falla (ej. backend no está corriendo), usar valores por defecto
+    if (error?.code === 'NETWORK_ERROR') {
+      console.warn(
+        '[Settings] No se pudo conectar con el backend. Usando valores por defecto. ¿Está corriendo? Ejecuta: cd backend && php -S localhost:8000 server.php'
+      );
+    } else {
+      console.error('Error obteniendo settings:', error);
+    }
     return getDefaultSettings();
   }
 }

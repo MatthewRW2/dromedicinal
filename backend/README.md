@@ -85,12 +85,16 @@ php scripts/create-admin.php
 
 ### 4. Configurar servidor
 
-#### Opción A: PHP Built-in Server (desarrollo)
+#### Opción A: PHP Built-in Server (desarrollo) — recomendado
+
+Desde la carpeta **backend** (no desde `public`):
 
 ```bash
-cd backend/public
-php -S localhost:8000
+cd backend
+php -S localhost:8000 server.php
 ```
+
+El script `server.php` hace que todas las peticiones a `/api/v1/...` pasen por el front controller. **Mantén esta terminal abierta** mientras desarrollas; si la cierras, el frontend no podrá conectar y verás "Error de conexión".
 
 #### Opción B: XAMPP / Apache
 
