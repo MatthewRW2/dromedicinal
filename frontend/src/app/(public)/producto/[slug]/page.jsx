@@ -8,6 +8,27 @@ import { IconWhatsApp, IconRappi, IconInfo } from '@/components/icons';
 import { publicAPI } from '@/lib/api';
 import { getSettings } from '@/lib/settings';
 
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  try {
+    const slugs = [];
+    let page = 1;
+    let hasMore = true;
+    while (hasMore) {
+      const res = await publicAPI.getProducts({ page, per_page: 100 });
+      const products = res.data || [];
+      slugs.push(...products.filter((p) => p?.slug).map((p) => ({ slug: String(p.slug) })));
+      const totalPages = res.meta?.total_pages || 1;
+      hasMore = page < totalPages;
+      page += 1;
+    }
+    return slugs.length > 0 ? slugs : [{ slug: '_' }];
+  } catch {
+    return [{ slug: '_' }];
+  }
+}
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   

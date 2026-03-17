@@ -3,6 +3,19 @@ import { generateCategoryMetadata } from '@/lib/seo';
 import { publicAPI } from '@/lib/api';
 import CategoryProductsClient from '@/components/catalogo/CategoryProductsClient';
 
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  try {
+    const res = await publicAPI.getCategories();
+    const categories = res.data || [];
+    const slugs = categories.filter((c) => c?.slug).map((c) => ({ categoria: String(c.slug) }));
+    return slugs.length > 0 ? slugs : [{ categoria: '_' }];
+  } catch {
+    return [{ categoria: '_' }];
+  }
+}
+
 export async function generateMetadata({ params }) {
   const { categoria } = await params;
   
@@ -20,7 +33,7 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function CategoryPage({ params, searchParams }) {
+export default async function CategoryPage({ params }) {
   const { categoria } = await params;
   
   // Obtener categoría
@@ -36,28 +49,8 @@ export default async function CategoryPage({ params, searchParams }) {
     notFound();
   }
 
-  // Obtener parámetros de búsqueda y filtros (searchParams es una Promise en Next.js 15+)
-  const resolvedSearchParams = await searchParams;
-  const page = Math.max(1, parseInt(resolvedSearchParams?.page || '1', 10) || 1);
+  // Para static export: siempre página 1 sin filtros. El cliente maneja paginación/filtros.
   const perPage = 24;
-  const q = resolvedSearchParams?.q || '';
-  const availability = resolvedSearchParams?.availability || '';
-  const minPrice = resolvedSearchParams?.min_price || '';
-  const maxPrice = resolvedSearchParams?.max_price || '';
-
-  // Construir parámetros para la API
-  const apiParams = {
-    category: categoria,
-    page,
-    per_page: perPage,
-  };
-
-  if (q) apiParams.q = q;
-  if (availability) apiParams.availability = availability;
-  if (minPrice) apiParams.min_price = minPrice;
-  if (maxPrice) apiParams.max_price = maxPrice;
-
-  // Obtener productos
   let products = [];
   let meta = {
     current_page: 1,
@@ -67,10 +60,12 @@ export default async function CategoryPage({ params, searchParams }) {
   };
 
   try {
-    const productsRes = await publicAPI.getProducts(apiParams);
+    const productsRes = await publicAPI.getProducts({
+      category: categoria,
+      page: 1,
+      per_page: perPage,
+    });
     products = Array.isArray(productsRes.data) ? productsRes.data : [];
-    
-    // Validar y normalizar meta para evitar NaN
     if (productsRes.meta) {
       meta = {
         current_page: Number(productsRes.meta.current_page) || 1,
@@ -80,14 +75,7 @@ export default async function CategoryPage({ params, searchParams }) {
       };
     }
   } catch (error) {
-    // Error silencioso - continuar con arrays vacíos y meta por defecto
     products = [];
-    meta = {
-      current_page: 1,
-      per_page: perPage,
-      total: 0,
-      total_pages: 1,
-    };
   }
 
   return (

@@ -2,11 +2,24 @@ import { notFound } from 'next/navigation';
 import { generateMetadata as generateSEOMetadata } from '@/lib/seo';
 import { ProductCard } from '@/components/catalogo';
 import { ButtonLink } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import Badge from '@/components/ui/Badge';
 import { publicAPI } from '@/lib/api';
 import { getSettings } from '@/lib/settings';
 import { IconWhatsApp, IconRappi, IconClock, IconPackage } from '@/components/icons';
 import Image from 'next/image';
+
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  try {
+    const res = await publicAPI.getPromotions();
+    const promotions = Array.isArray(res?.data) ? res.data : [];
+    const slugs = promotions.filter((p) => p?.slug).map((p) => ({ slug: String(p.slug) }));
+    return slugs.length > 0 ? slugs : [{ slug: '_' }];
+  } catch {
+    return [{ slug: '_' }];
+  }
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;

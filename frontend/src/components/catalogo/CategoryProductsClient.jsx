@@ -1,12 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { ProductCard, FiltersBar, Pagination, PaginationInfo } from '@/components/catalogo';
 import { publicAPI } from '@/lib/api';
 
+/** Obtener search params desde window (compatible con static export, sin useSearchParams) */
+function useQueryParams() {
+  const [params, setParams] = useState(() => {
+    if (typeof window === 'undefined') return new URLSearchParams('');
+    return new URLSearchParams(window.location.search);
+  });
+
+  useEffect(() => {
+    const updateParams = () => setParams(new URLSearchParams(window.location.search));
+    window.addEventListener('popstate', updateParams);
+    return () => window.removeEventListener('popstate', updateParams);
+  }, []);
+
+  const sync = () => setParams(new URLSearchParams(window.location.search));
+  return { params, sync };
+}
+
 /**
- * Componente cliente para manejar filtros y paginación en página de categoría
+ * Componente cliente para manejar filtros y paginación en página de categoría.
+ * Con exportación estática, la paginación y filtros se obtienen del API en el cliente.
  */
 export default function CategoryProductsClient({ 
   category, 
@@ -14,8 +32,16 @@ export default function CategoryProductsClient({
   initialMeta 
 }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const { params: searchParams, sync } = useQueryParams();
   const [whatsappNumber, setWhatsappNumber] = useState(null);
+  const [products, setProducts] = useState(() => Array.isArray(initialProducts) ? initialProducts : []);
+  const [meta, setMeta] = useState(() => ({
+    current_page: Number(initialMeta?.current_page) || 1,
+    per_page: Number(initialMeta?.per_page) || 24,
+    total: Number(initialMeta?.total) || 0,
+    total_pages: Number(initialMeta?.total_pages) || 1,
+  }));
+  const [loading, setLoading] = useState(false);
 
   // Cargar settings para obtener WhatsApp
   useEffect(() => {
@@ -27,22 +53,66 @@ export default function CategoryProductsClient({
           setWhatsappNumber(settings.whatsapp_number);
         }
       } catch (error) {
-        // Usar valor por defecto si falla
         setWhatsappNumber('573134243625');
       }
     };
     loadSettings();
   }, []);
 
-  const products = Array.isArray(initialProducts) ? initialProducts : [];
-  
-  // Validar y normalizar meta para evitar NaN
-  const meta = {
-    current_page: Number(initialMeta?.current_page) || 1,
-    per_page: Number(initialMeta?.per_page) || 24,
-    total: Number(initialMeta?.total) || 0,
-    total_pages: Number(initialMeta?.total_pages) || 1,
-  };
+  // Obtener productos cuando cambian los parámetros de la URL
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+  const q = searchParams.get('q') || '';
+  const availability = searchParams.get('availability') || '';
+  const minPrice = searchParams.get('min_price') || '';
+  const maxPrice = searchParams.get('max_price') || '';
+
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const apiParams = {
+        category: category.slug,
+        page,
+        per_page: meta.per_page,
+      };
+      if (q) apiParams.q = q;
+      if (availability) apiParams.availability = availability;
+      if (minPrice) apiParams.min_price = minPrice;
+      if (maxPrice) apiParams.max_price = maxPrice;
+
+      const res = await publicAPI.getProducts(apiParams);
+      const items = Array.isArray(res?.data) ? res.data : [];
+      const m = res?.meta || {};
+      setProducts(items);
+      setMeta({
+        current_page: Number(m.current_page) || page,
+        per_page: Number(m.per_page) || meta.per_page,
+        total: Number(m.total) || 0,
+        total_pages: Number(m.total_pages) || 1,
+      });
+    } catch (error) {
+      setProducts([]);
+      setMeta((prev) => ({ ...prev, total: 0, total_pages: 1 }));
+    } finally {
+      setLoading(false);
+    }
+  }, [category.slug, page, q, availability, minPrice, maxPrice, meta.per_page]);
+
+  // Si hay parámetros de filtro/paginación distintos a los iniciales, hacer fetch
+  useEffect(() => {
+    const needsFetch = page !== 1 || q || availability || minPrice || maxPrice;
+    if (needsFetch) {
+      fetchProducts();
+    } else {
+      // Usar datos iniciales
+      setProducts(Array.isArray(initialProducts) ? initialProducts : []);
+      setMeta({
+        current_page: Number(initialMeta?.current_page) || 1,
+        per_page: Number(initialMeta?.per_page) || 24,
+        total: Number(initialMeta?.total) || 0,
+        total_pages: Number(initialMeta?.total_pages) || 1,
+      });
+    }
+  }, [page, q, availability, minPrice, maxPrice, fetchProducts, initialProducts, initialMeta]);
 
   // Función para actualizar URL con nuevos parámetros
   const updateURL = (newParams) => {
@@ -56,12 +126,12 @@ export default function CategoryProductsClient({
       }
     });
 
-    // Resetear página si cambian otros filtros
     if (newParams.q !== undefined || newParams.availability !== undefined) {
       params.set('page', '1');
     }
 
     router.push(`/catalogo/${category.slug}?${params.toString()}`);
+    sync(); // Forzar re-render para leer nueva URL
   };
 
   const handleSearch = (term) => {
@@ -76,9 +146,8 @@ export default function CategoryProductsClient({
     });
   };
 
-  const handlePageChange = (page) => {
-    updateURL({ page: page.toString() });
-    // Scroll to top
+  const handlePageChange = (pageNum) => {
+    updateURL({ page: pageNum.toString() });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

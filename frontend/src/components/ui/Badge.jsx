@@ -20,7 +20,7 @@ const sizes = {
   md: 'px-2.5 py-1 text-sm',
 };
 
-export default function Badge({
+function Badge({
   children,
   variant = 'default',
   size = 'md',
@@ -42,6 +42,9 @@ export default function Badge({
     </span>
   );
 }
+
+export default Badge;
+export { Badge };
 
 /**
  * Badge de estado de disponibilidad para productos
