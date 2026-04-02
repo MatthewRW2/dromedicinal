@@ -291,34 +291,62 @@ export default async function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 lg:py-20 bg-brand-blue">
-        <div className="container-app text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-            ¿Necesitas algo?
-          </h2>
-          <p className="text-white/90 text-lg mb-8 max-w-xl mx-auto">
-            Escríbenos por WhatsApp y te atendemos de inmediato. 
-            También puedes pedir a través de Rappi.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <ButtonLink
-              href={whatsappUrl.replace('%20pedido', '')}
-              variant="whatsapp"
-              size="lg"
-              external
-              icon={<IconWhatsApp className="w-5 h-5" />}
-            >
-              WhatsApp
-            </ButtonLink>
-            <ButtonLink
-              href={rappiUrl}
-              variant="rappi"
-              size="lg"
-              external
-              icon={<IconRappi className="w-5 h-5" />}
-            >
-              Rappi
-            </ButtonLink>
+      <section className="relative py-20 lg:py-28 overflow-hidden bg-gradient-to-br from-brand-blue via-brand-blue-dark to-brand-green">
+        {/* Patrón de fondo decorativo */}
+        <div className="absolute inset-0 opacity-[0.07]"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='40' cy='40' r='3'/%3E%3Ccircle cx='0' cy='0' r='3'/%3E%3Ccircle cx='80' cy='0' r='3'/%3E%3Ccircle cx='0' cy='80' r='3'/%3E%3Ccircle cx='80' cy='80' r='3'/%3E%3C/g%3E%3C/svg%3E")` }}
+        />
+
+        {/* Orbes de luz */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-brand-green/20 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="container-app relative">
+          <div className="max-w-3xl mx-auto text-center">
+            {/* Pill label */}
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/80 text-xs font-semibold uppercase tracking-widest mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-green-light animate-pulse" />
+              Atención inmediata
+            </span>
+
+            <h2 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-5">
+              ¿Necesitas{' '}
+              <span className="text-brand-green-light underline decoration-brand-green-light/40 decoration-4 underline-offset-4">
+                algo?
+              </span>
+            </h2>
+
+            <p className="text-white/80 text-lg lg:text-xl mb-10 max-w-xl mx-auto leading-relaxed">
+              Escríbenos por WhatsApp y te atendemos de inmediato.
+              También puedes hacer tu pedido fácilmente a través de Rappi.
+            </p>
+
+            {/* Botones */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <ButtonLink
+                href={whatsappUrl.replace('%20pedido', '')}
+                variant="whatsapp"
+                size="lg"
+                external
+                icon={<IconWhatsApp className="w-5 h-5" />}
+              >
+                Escribir por WhatsApp
+              </ButtonLink>
+              <ButtonLink
+                href={rappiUrl}
+                variant="rappi"
+                size="lg"
+                external
+                icon={<IconRappi className="w-5 h-5" />}
+              >
+                Pedir en Rappi
+              </ButtonLink>
+            </div>
+
+            {/* Nota de confianza */}
+            <p className="mt-8 text-white/50 text-sm">
+              Tiempo de respuesta promedio: menos de 5 minutos
+            </p>
           </div>
         </div>
       </section>
