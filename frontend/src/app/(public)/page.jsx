@@ -352,44 +352,118 @@ export default async function HomePage() {
       </section>
 
       {/* Info Section */}
-      <section className="py-16 lg:py-20 bg-gray-50">
+      <section className="py-16 lg:py-20 bg-gray-50 border-t border-gray-100">
         <div className="container-app">
-          <div className="grid md:grid-cols-3 gap-8">
+
+          {/* Título centrado */}
+          <div className="text-center mb-12">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              Encuéntranos
+            </h2>
+            <p className="text-gray-500 mt-2 text-sm">Estamos cerca para atenderte cuando nos necesites</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+
             {/* Horarios */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-blue-light rounded-full flex items-center justify-center mx-auto mb-4">
-                <IconClock className="w-8 h-8 text-brand-blue" />
+            <div className="group bg-white rounded-2xl p-7 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <IconClock className="w-6 h-6 text-brand-blue" />
+                </div>
+                <h3 className="font-bold text-gray-900 text-base">Horarios de atención</h3>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Horarios de atención</h3>
-              <p className="text-gray-600 text-sm">
-                {settings.business_hours || 'Lunes a Sábado: 7:00 AM - 9:00 PM\nDomingos y Festivos: 8:00 AM - 2:00 PM'}
-              </p>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-brand-blue flex-shrink-0 mt-2" />
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Lunes – Sábado</p>
+                    <p className="text-sm font-medium text-gray-800">7:30 a.m. – 9:30 p.m.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-brand-green flex-shrink-0 mt-2" />
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Domingos y Festivos</p>
+                    <p className="text-sm font-medium text-gray-800">8:30 a.m. – 8:30 p.m.</p>
+                  </div>
+                </div>
+                {settings.business_hours && (
+                  <p className="text-xs text-gray-400 pt-1">{settings.business_hours}</p>
+                )}
+              </div>
             </div>
 
             {/* Ubicación */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-green-light rounded-full flex items-center justify-center mx-auto mb-4">
-                <IconLocation className="w-8 h-8 text-brand-green" />
+            <div className="group bg-white rounded-2xl p-7 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                  <IconLocation className="w-6 h-6 text-emerald-600" />
+                </div>
+                <h3 className="font-bold text-gray-900 text-base">Ubicación</h3>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Ubicación</h3>
-              <p className="text-gray-600 text-sm">
-                {settings.address || 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca'}
+              <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                {settings.address || 'Av. 70 # 79-16, Engativá, Bogotá'}
               </p>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address || 'Av. 70 79-16 Engativá Bogotá')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
+              >
+                Ver en Google Maps
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
             </div>
 
             {/* Contacto */}
-            <div className="text-center">
-              <div className="w-16 h-16 bg-brand-orange-light rounded-full flex items-center justify-center mx-auto mb-4">
-                <IconPhone className="w-8 h-8 text-amber-600" />
+            <div className="group bg-white rounded-2xl p-7 shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-11 h-11 rounded-xl bg-violet-50 flex items-center justify-center flex-shrink-0">
+                  <IconPhone className="w-6 h-6 text-violet-600" />
+                </div>
+                <h3 className="font-bold text-gray-900 text-base">Contáctanos</h3>
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Contáctanos</h3>
-              <p className="text-gray-600 text-sm">
-                {settings.phone && `Teléfono: ${settings.phone}`}
-                {settings.phone && settings.whatsapp_number && <br />}
-                {settings.whatsapp_number && `WhatsApp: ${settings.whatsapp_number}`}
-                {!settings.phone && !settings.whatsapp_number && 'Contacto disponible'}
-              </p>
+              <div className="space-y-3">
+                {(settings.phone || true) && (
+                  <a
+                    href={`tel:${(settings.phone || '3134243625').replace(/[^0-9]/g, '')}`}
+                    className="flex items-center gap-3 group/link"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
+                      <IconPhone className="w-4 h-4 text-gray-500" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Teléfono</p>
+                      <p className="text-sm font-medium text-gray-800 group-hover/link:text-violet-600 transition-colors">
+                        {settings.phone || '313 424 3625'}
+                      </p>
+                    </div>
+                  </a>
+                )}
+                {(settings.whatsapp_number || true) && (
+                  <a
+                    href={`https://wa.me/${(settings.whatsapp_number || '573134243625').replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 group/link"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+                      <IconWhatsApp className="w-4 h-4 text-whatsapp" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">WhatsApp</p>
+                      <p className="text-sm font-medium text-gray-800 group-hover/link:text-whatsapp transition-colors">
+                        {settings.whatsapp_number || '573 134 243 625'}
+                      </p>
+                    </div>
+                  </a>
+                )}
+              </div>
             </div>
+
           </div>
         </div>
       </section>
