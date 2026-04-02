@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { ButtonLink } from '@/components/ui/Button';
 import { CategoryGrid } from '@/components/catalogo';
 import { publicAPI } from '@/lib/api';
@@ -48,37 +49,20 @@ function getServiceIcon(name) {
   return IconBeaker;
 }
 
-// Paleta de colores por índice de servicio
-const serviceColors = [
-  {
-    accentBar: 'bg-brand-blue',
-    badge: 'bg-blue-100 text-brand-blue',
-    iconBg: 'bg-blue-50',
-    iconColor: 'text-brand-blue',
-    ring: 'ring-blue-100',
-  },
-  {
-    accentBar: 'bg-rose-500',
-    badge: 'bg-rose-100 text-rose-600',
-    iconBg: 'bg-rose-50',
-    iconColor: 'text-rose-500',
-    ring: 'ring-rose-100',
-  },
-  {
-    accentBar: 'bg-emerald-500',
-    badge: 'bg-emerald-100 text-emerald-700',
-    iconBg: 'bg-emerald-50',
-    iconColor: 'text-emerald-600',
-    ring: 'ring-emerald-100',
-  },
-  {
-    accentBar: 'bg-violet-500',
-    badge: 'bg-violet-100 text-violet-700',
-    iconBg: 'bg-violet-50',
-    iconColor: 'text-violet-600',
-    ring: 'ring-violet-100',
-  },
+// Imágenes por posición — evita problemas de codificación de acentos
+const serviceImagesByIndex = [
+  '/img/services/orientacion-farmaceutica.jpg',
+  '/img/services/toma-presion-arterial.jpg',
+  '/img/services/control-glicemia.jpg',
+  '/img/services/inyectologia.jpg',
+  '/img/services/domicilios.jpg',
+  '/img/services/recargas.jpg',
+  '/img/services/pago-servicios.jpg',
 ];
+
+function getServiceImage(index) {
+  return serviceImagesByIndex[index % serviceImagesByIndex.length];
+}
 
 export default async function HomePage() {
   // Obtener datos de la API
@@ -225,8 +209,8 @@ export default async function HomePage() {
       <section className="py-16 lg:py-24 bg-white">
         <div className="container-app">
 
-          {/* Header — alineado izquierda con CTA a la derecha */}
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
+          {/* Header */}
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
             <div>
               <span className="inline-block text-xs font-bold uppercase tracking-widest text-brand-blue mb-3">
                 Servicios de salud
@@ -245,40 +229,49 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Cards */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Cards con imagen */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {featuredServices.length > 0 ? (
               featuredServices.map((service, i) => {
                 const Icon = service.icon;
-                const colors = serviceColors[i % serviceColors.length];
+                const img = getServiceImage(i);
                 return (
-                  <div
+                  <Link
                     key={service.id}
-                    className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                    href="/servicios"
+                    className="group relative block overflow-hidden bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                   >
-                    {/* Barra de acento superior */}
-                    <div className={`h-1 w-full ${colors.accentBar}`} />
-
-                    <div className="p-6 pt-5">
-                      {/* Número de orden */}
-                      <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold mb-5 ${colors.badge}`}>
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-
-                      {/* Icono grande */}
-                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 ${colors.iconBg} ring-4 ${colors.ring}`}>
-                        <Icon className={`w-8 h-8 ${colors.iconColor}`} />
+                    {/* Imagen */}
+                    <div className="aspect-[4/3] relative overflow-hidden">
+                      {img ? (
+                        <Image
+                          src={img}
+                          alt={service.name}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-brand-blue-light to-brand-green-light" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+                      {/* Icono + nombre superpuesto */}
+                      <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-4 h-4 text-white" />
+                        </div>
+                        <h3 className="font-bold text-white text-sm leading-tight drop-shadow-sm line-clamp-2">
+                          {service.name}
+                        </h3>
                       </div>
-
-                      {/* Texto */}
-                      <h3 className="font-bold text-gray-900 mb-2 text-base leading-snug">
-                        {service.name}
-                      </h3>
-                      <p className="text-sm text-gray-500 leading-relaxed">
+                    </div>
+                    {/* Descripción */}
+                    <div className="p-3 bg-white border-t border-gray-100">
+                      <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
                         {service.description}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                 );
               })
             ) : (
