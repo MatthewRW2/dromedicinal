@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ButtonLink } from '@/components/ui/Button';
+import { CategoryGrid } from '@/components/catalogo';
 import { publicAPI } from '@/lib/api';
 import { getSettings } from '@/lib/settings';
 import {
@@ -9,11 +10,6 @@ import {
   IconClock,
   IconPhone,
   IconPill,
-  IconSprayBottle,
-  IconBaby,
-  IconFlower,
-  IconOrange,
-  IconFirstAid,
   IconSyringe,
   IconHeartbeat,
   IconDrop,
@@ -23,45 +19,66 @@ import {
   IconClipboard,
 } from '@/components/icons';
 
-// Mapeo de iconos por nombre/slug de categoría
-const categoryIconMap = {
-  'medicamentos': IconPill,
-  'medicamento': IconPill,
-  'cuidado-personal': IconSprayBottle,
-  'cuidado personal': IconSprayBottle,
-  'bebes-ninos': IconBaby,
-  'bebés y niños': IconBaby,
-  'bebes y ninos': IconBaby,
-  'dermocosmeticos': IconFlower,
-  'dermocosméticos': IconFlower,
-  'vitaminas': IconOrange,
-  'vitamina': IconOrange,
-  'primeros-auxilios': IconFirstAid,
-  'primeros auxilios': IconFirstAid,
-};
-
-// Mapeo de iconos por nombre de servicio
+// Mapeo de iconos por nombre exacto de servicio (según BD)
 const serviceIconMap = {
-  'inyectologia': IconSyringe,
-  'inyectología': IconSyringe,
-  'toma de tension': IconHeartbeat,
+  'orientación farmacéutica': IconBeaker,
+  'orientacion farmaceutica': IconBeaker,
+  'toma de presión arterial': IconHeartbeat,
+  'toma de presion arterial': IconHeartbeat,
   'toma de tensión': IconHeartbeat,
+  'toma de tension': IconHeartbeat,
+  'control de glicemia': IconDrop,
   'glicemia': IconDrop,
+  'inyectología': IconSyringe,
+  'inyectologia': IconSyringe,
   'domicilios': IconTruck,
-  'asesoria': IconBeaker,
+  'recargas': IconPill,
+  'pago de servicios': IconClipboard,
   'asesoría': IconBeaker,
-  'pedidos especiales': IconClipboard,
+  'asesoria': IconBeaker,
 };
-
-function getCategoryIcon(name, slug) {
-  const key = (slug || name || '').toLowerCase();
-  return categoryIconMap[key] || IconPill;
-}
 
 function getServiceIcon(name) {
   const key = (name || '').toLowerCase();
-  return serviceIconMap[key] || IconBeaker;
+  if (serviceIconMap[key]) return serviceIconMap[key];
+  // Coincidencia parcial como fallback
+  for (const [mapKey, icon] of Object.entries(serviceIconMap)) {
+    if (key.includes(mapKey) || mapKey.includes(key)) return icon;
+  }
+  return IconBeaker;
 }
+
+// Paleta de colores por índice de servicio
+const serviceColors = [
+  {
+    accentBar: 'bg-brand-blue',
+    badge: 'bg-blue-100 text-brand-blue',
+    iconBg: 'bg-blue-50',
+    iconColor: 'text-brand-blue',
+    ring: 'ring-blue-100',
+  },
+  {
+    accentBar: 'bg-rose-500',
+    badge: 'bg-rose-100 text-rose-600',
+    iconBg: 'bg-rose-50',
+    iconColor: 'text-rose-500',
+    ring: 'ring-rose-100',
+  },
+  {
+    accentBar: 'bg-emerald-500',
+    badge: 'bg-emerald-100 text-emerald-700',
+    iconBg: 'bg-emerald-50',
+    iconColor: 'text-emerald-600',
+    ring: 'ring-emerald-100',
+  },
+  {
+    accentBar: 'bg-violet-500',
+    badge: 'bg-violet-100 text-violet-700',
+    iconBg: 'bg-violet-50',
+    iconColor: 'text-violet-600',
+    ring: 'ring-violet-100',
+  },
+];
 
 export default async function HomePage() {
   // Obtener datos de la API
@@ -84,14 +101,8 @@ export default async function HomePage() {
     // Continuar con arrays vacíos, se mostrarán mensajes apropiados
   }
 
-  // Tomar primeras 6 categorías como destacadas
-  const featuredCategories = categories.slice(0, 6).map(cat => ({
-    id: cat.id,
-    name: cat.name,
-    slug: cat.slug,
-    icon: getCategoryIcon(cat.name, cat.slug),
-    count: cat.product_count || 0,
-  }));
+  // Tomar primeras 6 categorías como destacadas (objetos completos para CategoryGrid)
+  const featuredCategories = categories.slice(0, 6);
 
   // Tomar primeros 4 servicios como destacados
   const featuredServices = services.slice(0, 4).map(service => ({
@@ -191,7 +202,7 @@ export default async function HomePage() {
       {/* Categories Section */}
       <section className="py-16 lg:py-20 bg-gray-50">
         <div className="container-app">
-          <div className="text-center mb-12">
+          <div className="text-center mb-10">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
               Explora nuestro catálogo
             </h2>
@@ -200,32 +211,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-6">
-            {featuredCategories.map((category) => {
-              const Icon = category.icon;
-              return (
-                <Link
-                  key={category.id}
-                  href={`/catalogo/${category.slug}`}
-                  className="
-                    group bg-white rounded-xl p-6
-                    border border-gray-200
-                    hover:border-brand-blue hover:shadow-lg
-                    transition-all duration-300
-                    text-center
-                  "
-                >
-                  <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-brand-blue-light flex items-center justify-center group-hover:bg-brand-blue transition-colors">
-                    <Icon className="w-7 h-7 text-brand-blue group-hover:text-white transition-colors" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 group-hover:text-brand-blue transition-colors text-sm lg:text-base">
-                    {category.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 mt-1">{category.count} productos</p>
-                </Link>
-              );
-            })}
-          </div>
+          <CategoryGrid categories={featuredCategories} columns={3} />
 
           <div className="text-center mt-10">
             <ButtonLink href="/catalogo" variant="outline" size="lg">
@@ -236,50 +222,70 @@ export default async function HomePage() {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 lg:py-20">
+      <section className="py-16 lg:py-24 bg-white">
         <div className="container-app">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Nuestros servicios
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Más que una droguería, somos tu aliado en el cuidado de tu salud
-            </p>
+
+          {/* Header — alineado izquierda con CTA a la derecha */}
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
+            <div>
+              <span className="inline-block text-xs font-bold uppercase tracking-widest text-brand-blue mb-3">
+                Servicios de salud
+              </span>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+                Más que una droguería
+              </h2>
+              <p className="text-gray-500 mt-2 max-w-lg text-base">
+                Somos tu aliado en el cuidado de tu salud, con atención profesional y cercana.
+              </p>
+            </div>
+            <div className="flex-shrink-0">
+              <ButtonLink href="/servicios" variant="outline" size="md">
+                Ver todos los servicios →
+              </ButtonLink>
+            </div>
           </div>
 
+          {/* Cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredServices.length > 0 ? (
-              featuredServices.map((service) => {
+              featuredServices.map((service, i) => {
                 const Icon = service.icon;
+                const colors = serviceColors[i % serviceColors.length];
                 return (
                   <div
                     key={service.id}
-                    className="
-                      bg-white rounded-xl p-6
-                      border border-gray-200
-                      hover:shadow-lg
-                      transition-all duration-300
-                    "
+                    className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
                   >
-                    <div className="w-12 h-12 rounded-lg bg-brand-green-light flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-brand-green" />
+                    {/* Barra de acento superior */}
+                    <div className={`h-1 w-full ${colors.accentBar}`} />
+
+                    <div className="p-6 pt-5">
+                      {/* Número de orden */}
+                      <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold mb-5 ${colors.badge}`}>
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+
+                      {/* Icono grande */}
+                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-5 ${colors.iconBg} ring-4 ${colors.ring}`}>
+                        <Icon className={`w-8 h-8 ${colors.iconColor}`} />
+                      </div>
+
+                      {/* Texto */}
+                      <h3 className="font-bold text-gray-900 mb-2 text-base leading-snug">
+                        {service.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 leading-relaxed">
+                        {service.description}
+                      </p>
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">{service.name}</h3>
-                    <p className="text-sm text-gray-600">{service.description}</p>
                   </div>
                 );
               })
             ) : (
-              <div className="col-span-full text-center text-gray-500 py-8">
+              <div className="col-span-full text-center text-gray-400 py-12">
                 No hay servicios disponibles en este momento.
               </div>
             )}
-          </div>
-
-          <div className="text-center mt-10">
-            <ButtonLink href="/servicios" variant="primary" size="lg">
-              Conocer más servicios
-            </ButtonLink>
           </div>
         </div>
       </section>
