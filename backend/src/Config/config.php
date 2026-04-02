@@ -6,22 +6,30 @@
  * Para desarrollo local, se pueden modificar directamente aquí.
  */
 
-// Cargar variables de entorno si existe el archivo .env
-$envFile = dirname(__DIR__, 2) . '/.env';
-if (file_exists($envFile)) {
-    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+// Carga un archivo .env y sobreescribe las variables ya definidas si $override = true
+function loadEnvFile(string $path, bool $override = false): void {
+    if (!file_exists($path)) return;
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         if (strpos(trim($line), '#') === 0) continue;
         if (strpos($line, '=') === false) continue;
-        list($name, $value) = explode('=', $line, 2);
-        $name = trim($name);
+        [$name, $value] = explode('=', $line, 2);
+        $name  = trim($name);
         $value = trim($value);
-        if (!array_key_exists($name, $_ENV)) {
+        if ($override || !array_key_exists($name, $_ENV)) {
             $_ENV[$name] = $value;
             putenv("$name=$value");
         }
     }
 }
+
+$baseDir = dirname(__DIR__, 2);
+
+// 1. Carga la configuración base (producción / despliegue)
+loadEnvFile($baseDir . '/.env');
+
+// 2. Si existe .env.local, sus valores sobreescriben los anteriores (entorno local)
+loadEnvFile($baseDir . '/.env.local', override: true);
 
 /**
  * Obtener variable de entorno con valor por defecto
