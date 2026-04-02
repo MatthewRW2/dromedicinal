@@ -82,9 +82,9 @@ export default function ContactoPage() {
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hola%20Dromedicinal`;
   const phoneNumber = settings.phone || '313 4243625';
   const email = settings.contact_email || 'contacto@dromedicinal.com';
-  const address = settings.address || 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca';
+  const address = settings.address || 'Carrera 70 # 79-16, Engativá, Bogotá';
   const businessHours = settings.business_hours || 'Lun-Sáb: 7am - 9pm | Dom: 8am - 2pm';
-  const googleMapsUrl = settings.google_maps_url || 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.8529!2d-74.0817!3d4.6097!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNMKwMzYnMzUuMCJOIDc0wrAwNCc1NC4xIlc!5e0!3m2!1ses!2sco!4v1234567890';
+  const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=17&output=embed`;
 
   return (
     <div className="py-8 lg:py-12">

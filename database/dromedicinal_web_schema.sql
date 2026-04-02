@@ -332,7 +332,7 @@ INSERT INTO roles (name, description) VALUES
 -- Settings base del negocio (puedes actualizar en el panel o desde SQL)
 INSERT INTO settings (setting_key, setting_value) VALUES
 ('business_name', 'Droguería Dromedicinal'),
-('address', 'Av. 70 # 79-16, Engativá, Bogotá'),
+('address', 'Carrera 70 # 79-16, Engativá, Bogotá'),
 ('whatsapp_number', '573134243625'),
 ('contact_email', 'contacto@dromedicinal.com'),
 ('hours_weekdays', 'Lunes a Sábado: 7:30 a.m. – 9:30 p.m.'),

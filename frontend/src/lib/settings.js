@@ -45,7 +45,7 @@ function getDefaultSettings() {
     phone: '313 4243625',
     whatsapp_number: '573134243625',
     contact_email: 'contacto@dromedicinal.com',
-    address: 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca',
+    address: 'Carrera 70 # 79-16, Engativá, Bogotá',
     business_hours: 'Lunes a Sábado: 7:30 a.m. – 9:30 p.m. | Domingos y Festivos: 8:30 a.m. – 8:30 p.m.',
     rappi_url: '#',
     google_maps_url: null,

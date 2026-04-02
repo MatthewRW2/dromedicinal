@@ -100,6 +100,7 @@ export default async function HomePage() {
   const whatsappNumber = settings.whatsapp_number || '573134243625';
   const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=Hola%20Dromedicinal%2C%20quiero%20hacer%20un%20pedido`;
   const rappiUrl = settings.rappi_url || '#';
+  const businessAddress = 'Carrera 70 # 79-16, Engativá, Bogotá';
 
   return (
     <>
@@ -149,12 +150,10 @@ export default async function HomePage() {
 
               {/* Quick info */}
               <div className="mt-10 flex flex-wrap gap-6 text-sm text-white/80">
-                {settings.address && (
-                  <div className="flex items-center gap-2">
-                    <IconLocation className="w-4 h-4" />
-                    <span>{settings.address}</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <IconLocation className="w-4 h-4" />
+                  <span>{businessAddress}</span>
+                </div>
                 {settings.business_hours && (
                   <div className="flex items-center gap-2">
                     <IconClock className="w-4 h-4" />
@@ -246,7 +245,7 @@ export default async function HomePage() {
                       {img ? (
                         <Image
                           src={img}
-                          alt={service.name}
+                          alt={service.name || 'Servicio farmacéutico'}
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -396,10 +395,10 @@ export default async function HomePage() {
                 <h3 className="font-bold text-gray-900 text-base">Ubicación</h3>
               </div>
               <p className="text-sm text-gray-700 leading-relaxed mb-4">
-                {settings.address || 'Av. 70 # 79-16, Engativá, Bogotá'}
+                {businessAddress}
               </p>
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address || 'Av. 70 79-16 Engativá Bogotá')}`}
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(businessAddress)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"

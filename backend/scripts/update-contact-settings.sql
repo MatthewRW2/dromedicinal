@@ -5,7 +5,7 @@ USE dromedicinal_web;
 
 -- Actualizar dirección
 UPDATE settings 
-SET setting_value = 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca'
+SET setting_value = 'Carrera 70 # 79-16, Engativá, Bogotá'
 WHERE setting_key = 'address';
 
 -- Actualizar WhatsApp

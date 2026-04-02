@@ -14,11 +14,11 @@ export const siteConfig = {
   
   // NAP (Name, Address, Phone) - Crítico para SEO local
   address: {
-    full: 'Av. 70 # 79-16, Engativá, Bogotá, Cundinamarca',
-    street: 'Av. 70 # 79-16',
+    full: 'Carrera 70 # 79-16, Engativá, Bogotá',
+    street: 'Carrera 70 # 79-16',
     locality: 'Engativá',
     city: 'Bogotá',
-    region: 'Cundinamarca',
+    region: 'Bogotá D.C.',
     country: 'Colombia',
     countryCode: 'CO',
   },
