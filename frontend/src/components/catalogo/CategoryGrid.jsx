@@ -6,29 +6,35 @@ import {
   IconBaby,
   IconFlower,
   IconOrange,
-  IconFirstAid,
+  IconPackage,
   IconStorefront,
 } from '@/components/icons';
 
-// Iconos por defecto para categorías
+// Iconos por slug real de categoría (según BD)
 const categoryIcons = {
-  'medicamentos': IconPill,
-  'cuidado-personal': IconSprayBottle,
-  'bebes-ninos': IconBaby,
-  'dermocosmeticos': IconFlower,
-  'vitaminas': IconOrange,
-  'primeros-auxilios': IconFirstAid,
-  'default': IconStorefront,
+  'medicamentos':                   IconPill,
+  'nutricion-y-vida-saludable':     IconOrange,
+  'belleza':                        IconFlower,
+  'cuidado-personal-e-higiene':     IconSprayBottle,
+  'dermocosmeticos':                IconFlower,
+  'hogar-y-mascotas':               IconStorefront,
+  'mamas-y-bebes':                  IconBaby,
+  'alimentos-confiteria-y-bebidas': IconOrange,
+  'tecnologia-y-papeleria':         IconPackage,
+  'default':                        IconStorefront,
 };
 
-// Imágenes de stock locales por slug de categoría
+// Imágenes de stock locales por slug real de categoría
 const categoryStockImages = {
-  'medicamentos':     '/img/categories/medicamentos.jpg',
-  'cuidado-personal': '/img/categories/cuidado-personal.jpg',
-  'bebes-ninos':      '/img/categories/bebes-ninos.jpg',
-  'dermocosmeticos':  '/img/categories/dermocosmeticos.jpg',
-  'vitaminas':        '/img/categories/vitaminas.jpg',
-  'primeros-auxilios':'/img/categories/primeros-auxilios.jpg',
+  'medicamentos':                   '/img/categories/medicamentos.jpg',
+  'nutricion-y-vida-saludable':     '/img/categories/nutricion-y-vida-saludable.jpg',
+  'belleza':                        '/img/categories/belleza.jpg',
+  'cuidado-personal-e-higiene':     '/img/categories/cuidado-personal-e-higiene.jpg',
+  'dermocosmeticos':                '/img/categories/dermocosmeticos.jpg',
+  'hogar-y-mascotas':               '/img/categories/hogar-y-mascotas.jpg',
+  'mamas-y-bebes':                  '/img/categories/mamas-y-bebes.jpg',
+  'alimentos-confiteria-y-bebidas': '/img/categories/alimentos-confiteria-y-bebidas.jpg',
+  'tecnologia-y-papeleria':         '/img/categories/tecnologia-y-papeleria.jpg',
 };
 
 /**
