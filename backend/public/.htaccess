@@ -1,6 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
+    RewriteBase /backend/public/
     
     # Redirigir todo al front controller excepto archivos existentes
     RewriteCond %{REQUEST_FILENAME} !-f

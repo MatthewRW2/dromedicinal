@@ -13,14 +13,19 @@ DirectoryIndex index.html
   # pero el archivo existe en  __next.HASH/seg1/seg2.txt
   # Reglas en orden de mayor a menor profundidad para evitar capturas cortas
 
-  # 3 niveles: __next.H.a.b.c.txt → __next.H/a/b/c.txt
+  # 3 niveles con prefijo de ruta: path/__next.H.a.b.c.txt → path/__next.H/a/b/c.txt
   RewriteRule ^(.*)/__next\.([^./]+)\.([^./]+)\.([^./]+)\.([^./]+)\.txt$ $1/__next.$2/$3/$4/$5.txt [L]
 
-  # 2 niveles: __next.H.a.b.txt → __next.H/a/b.txt
+  # 2 niveles con prefijo de ruta: path/__next.H.a.b.txt → path/__next.H/a/b.txt
   RewriteRule ^(.*)/__next\.([^./]+)\.([^./]+)\.([^./]+)\.txt$ $1/__next.$2/$3/$4.txt [L]
 
-  # 1 nivel: __next.H.a.txt → __next.H/a.txt
+  # 1 nivel con prefijo de ruta: path/__next.H.a.txt → path/__next.H/a.txt
   RewriteRule ^(.*)/__next\.([^./]+)\.([^./]+)\.txt$ $1/__next.$2/$3.txt [L]
+
+  # Mismas reglas para rutas en la raíz (sin segmento de ruta previo)
+  RewriteRule ^__next\.([^./]+)\.([^./]+)\.([^./]+)\.([^./]+)\.txt$ __next.$1/$2/$3/$4.txt [L]
+  RewriteRule ^__next\.([^./]+)\.([^./]+)\.([^./]+)\.txt$ __next.$1/$2/$3.txt [L]
+  RewriteRule ^__next\.([^./]+)\.([^./]+)\.txt$ __next.$1/$2.txt [L]
 
   # ── Forzar barra final en rutas sin extensión ─────────────────────────────
   RewriteCond %{REQUEST_URI} !\.[a-zA-Z0-9]{1,5}$

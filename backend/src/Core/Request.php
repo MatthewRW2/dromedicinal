@@ -40,8 +40,14 @@ class Request
         $uri = '/' . trim($uri, '/');
 
         // Quitar el base path del servidor (e.g. /backend/public en producción).
-        // Se configura via APP_BASE_PATH en .env para ser explícito y fiable.
+        // Se configura via APP_BASE_PATH en .env; si no está, se auto-detecta desde SCRIPT_NAME.
         $basePath = rtrim(defined('APP_BASE_PATH') ? APP_BASE_PATH : '', '/');
+        if ($basePath === '') {
+            $scriptDir = dirname($_SERVER['SCRIPT_NAME'] ?? '/');
+            if ($scriptDir !== '/' && $scriptDir !== '.') {
+                $basePath = $scriptDir;
+            }
+        }
         if ($basePath !== '' && strpos($uri, $basePath) === 0) {
             $uri = substr($uri, strlen($basePath));
             if ($uri === '' || $uri[0] !== '/') {

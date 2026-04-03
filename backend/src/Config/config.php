@@ -28,8 +28,13 @@ $baseDir = dirname(__DIR__, 2);
 // 1. Carga la configuración base (producción / despliegue)
 loadEnvFile($baseDir . '/.env');
 
-// 2. Si existe .env.local, sus valores sobreescriben los anteriores (entorno local)
-loadEnvFile($baseDir . '/.env.local', override: true);
+// 2. Si existe .env.local Y el entorno NO es producción, sus valores sobreescriben los anteriores
+// En producción, .env.local nunca debe tener efecto aunque el archivo esté presente.
+$_loadedEnv = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?? 'dev';
+if ($_loadedEnv !== 'production') {
+    loadEnvFile($baseDir . '/.env.local', override: true);
+}
+unset($_loadedEnv);
 
 /**
  * Obtener variable de entorno con valor por defecto
