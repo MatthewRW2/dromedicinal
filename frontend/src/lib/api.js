@@ -3,7 +3,11 @@
  * Con soporte para autenticación JWT
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
+// En el servidor (build): usa API_BASE_URL (no expuesta al browser)
+// En el browser: usa NEXT_PUBLIC_API_BASE_URL (inlined por el bundler)
+const API_BASE_URL = process.env.API_BASE_URL
+  || process.env.NEXT_PUBLIC_API_BASE_URL
+  || 'http://localhost:8000/api/v1';
 
 // Clave para almacenar el token en localStorage
 const TOKEN_KEY = 'dromedicinal_token';

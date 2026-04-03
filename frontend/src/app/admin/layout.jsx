@@ -11,7 +11,7 @@ import Spinner from '@/components/ui/Spinner';
 function AdminContent({ children }) {
   const { user, loading, isAuthenticated, error } = useAuth();
   const pathname = usePathname();
-  const isLoginPage = pathname === '/admin/login';
+  const isLoginPage = pathname === '/admin/login' || pathname === '/admin/login/';
 
   // Mostrar loading mientras verifica autenticación
   if (loading) {

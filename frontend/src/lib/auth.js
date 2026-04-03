@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
   // Redirigir si no está autenticado (excepto en login)
   useEffect(() => {
     if (!loading) {
-      const isLoginPage = pathname === '/admin/login';
+      const isLoginPage = pathname === '/admin/login' || pathname === '/admin/login/';
       
       if (!user && !isLoginPage) {
         // No autenticado y no está en login -> redirigir a login
