@@ -112,3 +112,6 @@ define('LOG_PATH', APP_ROOT . '/storage/logs');
 define('API_VERSION', 'v1');
 define('API_PREFIX', '/api/' . API_VERSION);
 
+// Ruta base del backend en el servidor (vacío en local, /backend/public en producción)
+define('APP_BASE_PATH', env('APP_BASE_PATH', ''));
+

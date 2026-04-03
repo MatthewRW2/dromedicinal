@@ -37,18 +37,27 @@ class Request
             $uri = substr($uri, 0, $pos);
         }
         
-        // Remover el prefijo de la API si existe
         $uri = '/' . trim($uri, '/');
+
+        // Quitar el base path del servidor (e.g. /backend/public en producción).
+        // Se configura via APP_BASE_PATH en .env para ser explícito y fiable.
+        $basePath = rtrim(defined('APP_BASE_PATH') ? APP_BASE_PATH : '', '/');
+        if ($basePath !== '' && strpos($uri, $basePath) === 0) {
+            $uri = substr($uri, strlen($basePath));
+            if ($uri === '' || $uri[0] !== '/') {
+                $uri = '/' . ltrim($uri, '/');
+            }
+        }
         
-        // Si la URI comienza con /api/v1, removerlo
+        // Remover el prefijo /api/v1
         if (strpos($uri, API_PREFIX) === 0) {
             $uri = substr($uri, strlen(API_PREFIX));
             if (empty($uri)) {
                 $uri = '/';
             }
         }
-        
-        return $uri;
+
+        return $uri ?: '/';
     }
 
     /**
